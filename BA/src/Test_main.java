@@ -20,37 +20,13 @@ public class Test_main {
 		return erg;
 	}
 	public static void main(String[]args) throws Exception {
-		 {
-			    String file = "log.csv";
-			        try
-			        {
-			        FileWriter fw = new FileWriter(file);
-			        PrintWriter pw = new PrintWriter(fw, true);        
-			 
-			        pw.append("24/03/2011");
-			        pw.append(",");
-			        pw.append("Error: 451");
-			        pw.append(",");
-			        pw.println("User: Alex");
-			 
-			        pw.append("27/03/2011");
-			        pw.append(",");
-			        pw.append("Error: 404");
-			        pw.append(",");
-			        pw.println("User: John");
-			 
-			        pw.append("01/04/2011");
-			        pw.append(",");
-			        pw.append("Error: 501");
-			        pw.append(",");
-			        pw.println("User: Sophia");
-			        pw.close();
-			        }
-			        catch (IOException ioe)
-			        {
-			        System.out.println(ioe);        
-			        }
-			    }
+		 double fitness=0;
+		double selectionPressure=1.2;
+		int rank=10;
+		int highestRank=15;
+		fitness=(2-selectionPressure)+2*(selectionPressure-1)*((double)(rank-1)/ (double)(highestRank-1));
+	System.out.println(fitness);
+	
 	}
 }
 		

@@ -13,7 +13,8 @@ public class Tour {
     ArrayList<City> tour= new ArrayList<City>();
     double fitness = 0;
     double totalduration = 0;
-  
+    int rank=0;
+    static int highestRank=EA.popSize;
 	double IntersectionValue=0;
 	 double allsymmValue=0;
 //CONSTRUCTOR:
@@ -52,6 +53,12 @@ public class Tour {
        
     }
    
+    
+    
+    
+    
+    
+    
     //Get size of the tour
     public int tourSize() {
         return tour.size();
@@ -80,7 +87,7 @@ public class Tour {
     public int positionofCity(City city) {    
     	        int pos=-1;
     	      	for( int c=0;c<tourSize();c++) {
-    	      			if(city.getId()==getCity(c).getId()) {
+    	      			if(city.getId().equals(getCity(c).getId())) {
     	      				pos=c;
     	      				break;
     	      			
@@ -121,8 +128,9 @@ public class Tour {
     // Gets the tours fitness
     public double getFitness() {
         if (fitness == 0) {
-        	fitness = 10000/(double)getDuration();
-        
+        	
+        	fitness=(2-EA.selectionPressure)+2*(EA.selectionPressure-1)*((double)(rank-1)/(double)(highestRank-1));
+   
         }
         return fitness;
     }

@@ -43,13 +43,13 @@ public class All_Cities {
 		}
 		return checkcounter;
 	}
+	//gets the position of a city object in All_Cities
     public static int PositionofCity(City city){
         int pos=-1;
       	for( int c=0;c<numberOfCities();c++) {
       			if(city.getId()==getCity(c).getId()) {
       				pos=c;
       				break;
-      			
       		}
           }
       	return pos;

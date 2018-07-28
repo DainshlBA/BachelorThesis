@@ -51,15 +51,7 @@ public class Route {
 			
 			}
 		}
-
-		
-		//ID durch 1000 /10000 oder so teilen, bereiche definieren
-		//Switch case , case nummer referenziert auf richtige xml Datei;
-		//Durchiterieren bis ID gefunden, done.
-		
-		
-		
-		
+	
 		//Convert Node Ids in City Objects
 		Nodes_as_City=Send_Request.getNodes(Nodes);
 		

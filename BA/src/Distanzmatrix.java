@@ -24,7 +24,7 @@ public class Distanzmatrix {
 	// and add to All_Cities class
 	public static void createAll_Cities (){		
 			double[][] zwischenmatrix;
-			String s= "C:\\Users\\BADai\\Documents\\Eclipse\\BA\\src\\testing"   + "";
+			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\testing";
 			readFile rf= new readFile(s);
 			rf.readingFile();
 			CreatingnumOfCities=rf.getNumberofCities();		
@@ -73,7 +73,10 @@ public class Distanzmatrix {
 	public static void updateAllMatrix() throws Exception {
 		double faktor;
 		double[]IntersectionMatrix=Send_Request.IntersectionMatrix(EA.best.getCity(1));
-		
+//		for(int s=0; s<IntersectionMatrix.length;s++) {
+//			System.out.print(" "+IntersectionMatrix[s]);
+//		}
+		System.out.println( );
 		for(int i=0;i<matrix.length-1;i++) {
 			matrix[matrix.length-1][i]=IntersectionMatrix[i];
 		}

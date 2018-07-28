@@ -1,6 +1,8 @@
 
 
 import java.util.ArrayList;
+
+import javax.rmi.ssl.SslRMIClientSocketFactory;
 //Simulator that for event-based and time-depending simulation
 //Using Gamma-function for simulating new values
 //checks after every iteration of the EA if it has to fire an event
@@ -96,6 +98,21 @@ public class Simulator implements RouteServiceListener {
 		pastEvents = new ArrayList<AtEvent>();
 		now=e.eTime;
 		createEvents();
+		System.out.print("duration: ");
+		for(int s=0; s<duration.length;s++) {
+			System.out.print(duration[s]+" ");
+		}
+		System.out.println();
+		System.out.print("nodes: ");
+		for(int s=0; s<Nodes.size();s++) {
+			System.out.print(Nodes.get(s)+" ");
+		}
+		System.out.println();
+		System.out.print("Intersection: ");
+		for(int s=0; s<Intersection.size();s++) {
+			System.out.print(Intersection.get(s)+" ");
+		}
+		System.out.println();
 		
 	}
 	

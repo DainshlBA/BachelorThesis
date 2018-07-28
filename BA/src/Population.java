@@ -29,6 +29,7 @@ public class Population {
 	     tours[index] = tour;
 	 }
 	 
+	 //save a whole population individually
 	 public void saveAll(Population p) {
 		for(int index=0;index<p.populationSize();index++) {
 			 tours[index]=p.getTour(index);
@@ -36,6 +37,24 @@ public class Population {
 		
 	 }
 	
+	 //Sort by totalduration
+	 public void rankPopulation() {
+		 Tour temp = null;
+	     for (int i = 0; i <tours.length - 1; i++) {
+	         for (int j = i + 1; j < tours.length; j++) {
+	             if (tours[i].getDuration() < tours[j].getDuration()) {
+	                 temp = new Tour(tours[j]);
+	                 tours[j] = new Tour(tours[i]);
+	                 tours[i] = new Tour(temp);
+	             }
+	         }
+	     }
+	     for(int a=0;a<tours.length;a++) {
+	    	 tours[a].rank=(a+1);
+	    	
+	     }
+	 }
+	 //Average duration of population
 	 public double getAverageDuration(){
 		 double sum=0;
 		 for(int a=0; a<populationSize();a++) {
@@ -65,19 +84,25 @@ public class Population {
 		
 		 tours[i]=null;
 		 }
+	 
 	 public Tour getTour(int index) {
 	     return tours[index];
 	 }
 	 
+
 	 //Returns the fittest and best individual 
 	 public Tour getFittest() {
-	     Tour fittest=null;
+		
+		 Tour fittest=null;
+		 
 		 for(int nn=0; nn<tours.length;nn++) {
 			 if(tours[nn]!=null) {
+			
 			 fittest = tours[nn];
 			 break;
 			 }
 		 }
+		
 	     for (int i = 1; i < populationSize(); i++) {
 	    	 if(getTour(i)!=null) {
 	    		 if (fittest.getFitness() <= getTour(i).getFitness()) {
@@ -85,13 +110,14 @@ public class Population {
 	    		 }
 	         }
 	     }
+	
 	     return fittest;
 	 }
 	
 	 public int populationSize() {
 	 	return tours.length;
 	 }
-	
+	//Get number of empty tours in population
 	 public int checkforNull() {
 		 int notNull=0;
 		 for(int a=0; a<populationSize();a++) {
@@ -101,23 +127,15 @@ public class Population {
 		 }
 		 return notNull;
 	 }
-	 public void eliminateDuplicates() {
+	 //Check for duplicate Tours in population
+	 public boolean checkforDuplicates(Tour tocheck) {
+		 boolean duplicate=false;
 		for(int t=0; t<tours.length-1;t++) {
-			
-			Tour check= tours[t];
-			if(tours[t]!=null) {
-				
-				for(int tt=t+1; tt<tours.length;tt++) {
-					
-					if(tours[tt]!=null) {
-						if(check.checkforOrderDiffrence(tours[tt])==false) {
-							
-							deleteTour(tours[tt]);
-							
-						}
-					}
-				}
-			}	
+			if(tocheck.checkforOrderDiffrence(tours[t])==false) {
+				duplicate=true;
+				break;
+			}
 		}
-	 }
+		return duplicate;
+	}		
 }
