@@ -94,7 +94,7 @@ public class Send_Request {
 	
 	//Calculates the most efficient way for sending the request,
 	//Prepares URL and calls method gogo
-	//Manages response and updates last row of all matrixes
+	//Manages response and updates last row of all matrixes, no regulation in number of cities
 	public static double[] IntersectionMatrix(City Intersection) throws Exception{								//Gets all distances from upcoming WP Node to all cities
 		int numOfCities=All_Cities.checkForCities();
 		
@@ -183,6 +183,48 @@ public class Send_Request {
 		return erg;
 	}
 
+	//Creates first duration matrix up to 100 Cities
+	public static double[][] createsmallMatrix() throws Exception{
+		double[][] erg=new double[EA.numOfCities+1][EA.numOfCities+1];
+		String urlAnfang="https://w-bdlab-s1.hs-karlsruhe.de/osrm/table/v1/driving/";
+		//String urlAnfang = "http://router.project-osrm.org/table/v1/driving/";
+		 String zwischenerg="";
+		 for(int i=0; i<All_Cities.numberOfCities();i++){
+			 City intermediate = All_Cities.getCity(i);
+			 double x = intermediate.getLongitude();
+		   	 double y=intermediate.getLatitude();
+			 zwischenerg += Double.toString(x);
+			 zwischenerg+=",";
+			 zwischenerg+=Double.toString(y);
+			 if(i==(All_Cities.numberOfCities()-1))    
+			 {}
+			else{
+				zwischenerg+=";";
+			} 
+		 }
+		 String gesamt=urlAnfang+zwischenerg;
+		
+		 StringBuffer response = gogo(gesamt); 	 
+	     JSONObject jobj= new JSONObject(response.toString());
+	     JSONArray dura_1 = jobj.getJSONArray("durations");  
+	     for (int t=0; t<All_Cities.numberOfCities();t++){
+	    	JSONArray dura_2=dura_1.getJSONArray(t);
+	    	
+	        for (int i = 0; i < EA.numOfCities; i++) {
+	       
+	   	        erg[t][i] = dura_2.getDouble(i);	    	    	
+	   	    }
+	    }
+	     return erg;
+	}
+	
+	
+	
+	
+	
+	//Creates first duration matrix
+	//Calculates most efficient way to save requests
+	//No regulation in number of cities
 	public static double[][]createBasicMatrix() throws Exception {
 		double[][] erg=new double[Distanzmatrix.CreatingnumOfCities+1][Distanzmatrix.CreatingnumOfCities+1];
 		int numOfCities=All_Cities.numberOfCities();
@@ -865,39 +907,6 @@ public class Send_Request {
 		return erg;
 	}
 
-	public static double[][] createsmallMatrix() throws Exception{
-		double[][] erg=new double[EA.numOfCities+1][EA.numOfCities+1];
-		String urlAnfang="https://w-bdlab-s1.hs-karlsruhe.de/osrm/table/v1/driving/";
-		//String urlAnfang = "http://router.project-osrm.org/table/v1/driving/";
-		 String zwischenerg="";
-		 for(int i=0; i<All_Cities.numberOfCities();i++){
-			 City intermediate = All_Cities.getCity(i);
-			 double x = intermediate.getLongitude();
-		   	 double y=intermediate.getLatitude();
-			 zwischenerg += Double.toString(x);
-			 zwischenerg+=",";
-			 zwischenerg+=Double.toString(y);
-			 if(i==(All_Cities.numberOfCities()-1))    
-			 {}
-			else{
-				zwischenerg+=";";
-			} 
-		 }
-		 String gesamt=urlAnfang+zwischenerg;
-		
-		 StringBuffer response = gogo(gesamt); 	 
-	     JSONObject jobj= new JSONObject(response.toString());
-	     JSONArray dura_1 = jobj.getJSONArray("durations");  
-	     for (int t=0; t<All_Cities.numberOfCities();t++){
-	    	JSONArray dura_2=dura_1.getJSONArray(t);
-	    	
-	        for (int i = 0; i < EA.numOfCities; i++) {
-	       
-	   	        erg[t][i] = dura_2.getDouble(i);	    	    	
-	   	    }
-	    }
-	     return erg;
-	}
 }
 	
 	  
