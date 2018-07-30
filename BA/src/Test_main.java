@@ -20,12 +20,8 @@ public class Test_main {
 		return erg;
 	}
 	public static void main(String[]args) throws Exception {
-		 double fitness=0;
-		double selectionPressure=1.2;
-		int rank=10;
-		int highestRank=15;
-		fitness=(2-selectionPressure)+2*(selectionPressure-1)*((double)(rank-1)/ (double)(highestRank-1));
-	System.out.println(fitness);
+		 int a= (int)(Math.random()*4) +1;
+	System.out.println(a);
 	
 	}
 }

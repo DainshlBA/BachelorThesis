@@ -31,10 +31,16 @@ public class Maths {
 		}
 	}
 	
+	public static void calcGamFaktoren() {
+		for(int f=0; f<Faktoren.length;f++) {
+			SimulationsFaktoren[f]=Maths.round(Faktoren[f]*((Math.random()*0.2)+0.9),3);
+		}
+	}
+	
 	
 	//EAmmaFunction for simulating duration values
 	public static void goGamma(double k, double theta, double shiftDistance) {
-		GammaFaktoren= new double[Faktoren.length];
+		SimulationsFaktoren= new double[Faktoren.length];
 		for(int a=0; a<Faktoren.length;a++) {
 			
 			boolean accept = false;
@@ -58,7 +64,7 @@ public class Maths {
 		    		} while (!accept);
 		    	double GammaValue =  ((x * theta) + shiftDistance);
 		    
-		    	GammaFaktoren[a] = Faktoren[a] * GammaValue;
+		    	SimulationsFaktoren[a] = Faktoren[a] * GammaValue;
 		    	
 		    } 
 		    else {	
@@ -84,9 +90,7 @@ public class Maths {
 				 } while (!accept);
 			 
 			 double GammaValue = ((x * theta) + shiftDistance);
-		    	
-
-			GammaFaktoren[a] = Faktoren[a] * GammaValue;
+			 SimulationsFaktoren[a] = Faktoren[a] * GammaValue;
 		    }  
 		}
 	}

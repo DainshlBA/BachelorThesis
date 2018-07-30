@@ -28,9 +28,7 @@ public class EA implements myListener {
 	static boolean OP_Stop=false;
 	static boolean lastCityvisited=false;
 	static boolean START=false;
-//	int i;
-//	int j;
-//	int k;
+	
 	//EA parameters
     static int numOfCities;
 	static int popSize=50;			
@@ -100,7 +98,7 @@ public class EA implements myListener {
 		numOfCities=Distanzmatrix.CreatingnumOfCities;
 		Distanzmatrix.createDurationMatrix();
 		Distanzmatrix.createAllMatrixes();
-		Maths.calcSimFaktoren();
+		Maths.goGamma(c, theta, shiftDistance);
 		System.out.println("Einstellung sind getroffen worden!");
 	}
 	
@@ -119,136 +117,92 @@ public class EA implements myListener {
 	    	    	//Create new offspring generation according to generation gap
 	    	    	newOffsprings= new Population((int)(popSize*generationGap), false);
 
-	    	       if(ox2C){
-	    	    	   for (int z = 0; z < newOffsprings.populationSize(); z++) {   
-							if(Math.random()<=crossoverRate){
-							   if ((z+1)<newOffsprings.populationSize()) {							   		
-								   Tour parent1 = Selection(pop);							
-									Tour parent2 = Selection(pop);       					
-									Tour childs[]= Ox2Crossover(parent1,parent2);					
-									Tour child1=childs[0];
-									Tour child2=childs[1];            
-									newOffsprings.saveTour(z, child1);    							
-									newOffsprings.saveTour((z+1),child2);    						
-									z=z+1;						
-							   }        	
-								else {																	
-								Tour parent1 = Selection(pop);							
-								Tour parent2 = Selection(pop);           				   	
-								Tour childs[]= Ox2Crossover(parent1,parent2);						
-								newOffsprings.saveTour(z, childs[0]);                    				
-								} 
-							}
-							else{
-								Tour parent1 = tournamentSelection(pop);
-								newOffsprings.saveTour(z, parent1); 
-							}
-						}
-	    	    	   
-	    	       }
-	    	       if(cycC){
-	    	    	   for (int z = 0; z < newOffsprings.populationSize(); z++) {   	 
-	    	    		 	if(Math.random()<=crossoverRate){
-							   if ((z+1)<newOffsprings.populationSize()) {							   		
-								   Tour parent1 = Selection(pop);							
-									Tour parent2 = Selection(pop);       					
-									Tour childs[]= CycleC(parent1,parent2);					
-									Tour child1=childs[0];
-									Tour child2=childs[1];            
-									newOffsprings.saveTour(z, child1);    							
-									newOffsprings.saveTour((z+1),child2);    						
-									z=z+1;						
-							   }        	
-								else {																	
-								Tour parent1 = Selection(pop);							
-								Tour parent2 = Selection(pop);           				   	
-								Tour childs[]= CycleC(parent1,parent2);						
-								newOffsprings.saveTour(z, childs[0]);                    				
-								} 
-							}
-							else{
-								Tour parent1 = tournamentSelection(pop);
-								newOffsprings.saveTour(z, parent1); 
-							}
-						}
-	    	       }
-	    	       if(pmxC) {      
-	    	    	   for (int z = 0; z < newOffsprings.populationSize(); z++) {   	 
-	    	    			if(Math.random()<=crossoverRate){
-							   if ((z+1)<newOffsprings.populationSize()) {							   		
-								   Tour parent1 = Selection(pop);							
-									Tour parent2 = Selection(pop);       					
-									Tour childs[]= PMX(parent1,parent2);					
-									Tour child1=childs[0];
-									Tour child2=childs[1];            
-									newOffsprings.saveTour(z, child1);    							
-									newOffsprings.saveTour((z+1),child2);    						
-									z=z+1;						
-							   }        	
-								else {																	
-								Tour parent1 = Selection(pop);							
-								Tour parent2 = Selection(pop);           				   	
-								Tour childs[]= PMX(parent1,parent2);						
-								newOffsprings.saveTour(z, childs[0]);                    				
-								} 
-							}
-							else{
-								Tour parent1 = tournamentSelection(pop);
-								newOffsprings.saveTour(z, parent1); 
-							}
-						}
-	    	       }
-	    	       if(ordC) {       
-	    	    	   for (int z = 0; z < newOffsprings.populationSize(); z++) {	
-							if(Math.random()<=crossoverRate){					   
-							   Tour parent1 = Selection(pop);									
-							   Tour parent2 = Selection(pop);									
-							   Tour child = OrderCrossover(parent1, parent2);							
-							   newOffsprings.saveTour(z, child);
-							}
-							else{
-								Tour parent1 = tournamentSelection(pop);
-								newOffsprings.saveTour(z, parent1);
-							}
-						}
-	    	       }
-	    	 
+	    	    	
+	    	    	  for (int z = 0; z < newOffsprings.populationSize(); z++) {  
+	    	    		  int c_op=(int)(Math.random()*2)+1;
+			    	      switch(c_op) {  
+			    	      case 1:{	    	    	       
+			    	    	   if(Math.random()<=crossoverRate) {
+			    	    		   if ((z+1)<newOffsprings.populationSize()) {							   		
+									   Tour parent1 = Selection(pop);							
+										Tour parent2 = Selection(pop);       					
+										Tour childs[]= Ox2Crossover(parent1,parent2);					
+										Tour child1=childs[0];
+										Tour child2=childs[1];            
+										newOffsprings.saveTour(z, child1);    							
+										newOffsprings.saveTour((z+1),child2);    						
+										z=z+1;						
+								   }        	
+									else {																	
+									Tour parent1 = Selection(pop);							
+									Tour parent2 = Selection(pop);           				   	
+									Tour childs[]= Ox2Crossover(parent1,parent2);						
+									newOffsprings.saveTour(z, childs[0]);                    				
+									} 
+								}
+								else{
+									Tour parent1 = tournamentSelection(pop);
+									newOffsprings.saveTour(z, parent1); 
+								}
+			    	       }
+			    	       case 2: {	  
+			    	    	   if(Math.random()<=crossoverRate) {
+			    	    		   if ((z+1)<newOffsprings.populationSize()) {							   		
+									   Tour parent1 = Selection(pop);							
+										Tour parent2 = Selection(pop);       					
+										Tour childs[]= CycleC(parent1,parent2);					
+										Tour child1=childs[0];
+										Tour child2=childs[1];            
+										newOffsprings.saveTour(z, child1);    							
+										newOffsprings.saveTour((z+1),child2);    						
+										z=z+1;						
+								   }        	
+									else {																	
+									Tour parent1 = Selection(pop);							
+									Tour parent2 = Selection(pop);           				   	
+									Tour childs[]= CycleC(parent1,parent2);						
+									newOffsprings.saveTour(z, childs[0]);                    				
+									} 
+								}
+								else{
+									Tour parent1 = tournamentSelection(pop);
+									newOffsprings.saveTour(z, parent1); 
+								}
+			    	       }
+			 	      }
+	    	    }
+	    	    	  
+	    	    	
+
+	    	       for (int i = 0; i < newOffsprings.populationSize(); i++) {
+	    	     	 int m_op=(int)(Math.random()*4)+1;
+		    	       switch(m_op) {
+			    	       case 1:{	    	    	       
+			    	    	   if(Math.random()<=mutationRate) {
+			    	    		   	DisplacementMutation(newOffsprings.getTour(i));
+			    	    	   }
+			    	       }
+			    	       case 2: {	  
+			    	           if(Math.random()<=mutationRate) {
+			    	        	   ExchangeMutation(newOffsprings.getTour(i));
+			    	           }
+  
+			    	       }
+			    	       case 3:{			    
+			    	    	   if(Math.random()<=mutationRate) {
+			    	    		   InsertionMutation(newOffsprings.getTour(i));
+			    	    	   }	   
+			    	       }
+			    	       case 4:{
+			    	    	   if(Math.random()<=mutationRate) {
+			    	    		   InversionMutation(newOffsprings.getTour(i));
+			    	    	   }
+			    	    	   
+			    	       }
+		    	       	}
+	    	    }
 	    	      
-	    	       if(disM) {
-	    	           for (int i = 0; i < newOffsprings.populationSize(); i++) {       
-	    	        	   if(Math.random()<=mutationRate) {
-	    	        	   DisplacementMutation(newOffsprings.getTour(i));
-	    	        	   }
-	    	           }
-	    	       }
-	    	       if(mexM) {
-	    	           for (int i = 0; i < newOffsprings.populationSize(); i++) {		
-	    	        	   if(Math.random()<=mutationRate) {
-	    	        	   MultipleExchangeMutation(newOffsprings.getTour(i));
-	    	        	   }
-	    	           }
-	    	       }
-	    	       if(excM) {
-	    	           for (int i = 0; i < newOffsprings.populationSize(); i++) {
-	    	        	   if(Math.random()<=mutationRate) {
-	    	        	   ExchangeMutation(newOffsprings.getTour(i));
-	    	        	   }
-	    	           }
-	    	       }
-	    	       if(insM) {
-	    	    	   for (int i = 0; i < newOffsprings.populationSize(); i++) {
-	    	    		   if(Math.random()<=mutationRate) {
-	    	    		   InsertionMutation(newOffsprings.getTour(i));
-	    	    		   }
-	    	    	   }
-	    	       }
-	    	       if(invM) {				
-	    	    	   for (int i = 0; i < newOffsprings.populationSize(); i++) {		//Loop through all tours of new population and use inversion mutation
-	    	    		   if(Math.random()<=mutationRate) {
-	    	    		   InversionMutation(newOffsprings.getTour(i));
-	    	    		   }
-	    	    	   }
-	    	       }
+	    	    
 	    	    
 	    	       //Reinsertion with reinsertion rate and generation gap
 	    	       pop.rankPopulation();
