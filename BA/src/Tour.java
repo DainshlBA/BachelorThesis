@@ -52,12 +52,6 @@ public class Tour {
         tour.set(0, All_Cities.getCity(0));
        
     }
-   
-    
-    
-    
-    
-    
     
     //Get size of the tour
     public int tourSize() {
@@ -85,15 +79,14 @@ public class Tour {
     
     //Get the position of a certain
     public int positionofCity(City city) {    
-    	        int pos=-1;
-    	      	for( int c=0;c<tourSize();c++) {
-    	      			if(city.getId().equals(getCity(c).getId())) {
-    	      				pos=c;
-    	      				break;
-    	      			
-    	      		}
-    	          }
-    	    return pos;
+    	int pos=-1;
+    	for( int c=0;c<tourSize();c++) {
+    	   	if(city.getId().equals(getCity(c).getId())) {
+    	      	pos=c;
+    	      	break;
+    	     	}
+    	}
+    	return pos;
     }
     
     //Delete the city at certain position
@@ -125,17 +118,15 @@ public class Tour {
     }
  
   
-    // Gets the tours fitness
+    // Gets the tours rank based fitness according to selection pressure
     public double getFitness() {
-        if (fitness == 0) {
-        	
+        if (fitness == 0) {    	
         	fitness=(2-EA.selectionPressure)+2*(EA.selectionPressure-1)*((double)(rank-1)/(double)(highestRank-1));
-   
         }
         return fitness;
     }
      
-    //Calcuations the total duration of the tour depending on the status of the algorithm and procoess 
+    //Calculates the total duration of the tour depending on the status of the algorithm and procoess 
     public double getDuration() {
     	
     	totalduration=0;
