@@ -39,7 +39,7 @@ public class All_Cities {
 		for(int check=0; check<All_Cities.numberOfCities();check++) {
 			if(All_Cities.getCity(check).type=="City") {
 				checkcounter++;
-			}		
+			}		 
 		}
 		return checkcounter;
 	}

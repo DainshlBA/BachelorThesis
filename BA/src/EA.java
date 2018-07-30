@@ -83,6 +83,7 @@ public class EA implements myListener {
 	static double toDrivetoIntersection=0;
 	static double toDrivetoNode=0;
 	static TimeElement lastEventTime;
+	static TimeElement start;
 	private ArrayList<RouteServiceListener> listenerList= new ArrayList<RouteServiceListener>();
 	
 	//METHODS:
@@ -706,19 +707,7 @@ public class EA implements myListener {
     
 	
 }
-    //Loop through tour and depending on mutation rate swap the city of the loop with another random city
-    private static void MultipleExchangeMutation(Tour tour) {  
-    	
-    	for(int tourPos1=0; tourPos1 < tour.tourSize(); tourPos1++){	
-            if(Math.random() < mutationRate){               				
-                int tourPos2 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities;        
-                City city1 = tour.getCity(tourPos1); 						
-                City city2 = tour.getCity(tourPos2);             
-                tour.setCity(tourPos2, city1);							
-                tour.setCity(tourPos1, city2);
-            }
-        }
-    }
+
     
     //Choose number of random tours (=tournament size) and select the fittest of them
     //Selection operators
@@ -870,6 +859,7 @@ public class EA implements myListener {
 		}*/
 		
 		Run.runs=true;
+		start= new TimeElement();
 		Run.eventcheck=true;
 		System.out.println("Best duration: "+best.getDuration()+" tdtN: "+toDrivetoNode+" tdtI: "+toDrivetoIntersection+" tdtC: "+ toDrivetoCity +"Int-Val: "+best.IntersectionValue+" symmVal: "+ best.allsymmValue +"   Best: "+best.toString());
 
@@ -1950,4 +1940,17 @@ class GUI_Start extends JFrame {
 				}
 		}   	 	
 	}
+	    //Loop through tour and depending on mutation rate swap the city of the loop with another random city
+    private static void MultipleExchangeMutation(Tour tour) {  
+    	
+    	for(int tourPos1=0; tourPos1 < tour.tourSize(); tourPos1++){	
+            if(Math.random() < mutationRate){               				
+                int tourPos2 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities;        
+                City city1 = tour.getCity(tourPos1); 						
+                City city2 = tour.getCity(tourPos2);             
+                tour.setCity(tourPos2, city1);							
+                tour.setCity(tourPos1, city2);
+            }
+        }
+    }
 */

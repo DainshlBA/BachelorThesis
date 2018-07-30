@@ -136,6 +136,7 @@ public class Tour {
 	
     	//Calculation of duration in dynamic environment
     	if(EA.START==true) {
+    		if(totalduration==0) {
 			//actual hour
     		int hour= EA.lastEventTime.getHour();
 			//Time in Millis at next full hour
@@ -249,11 +250,16 @@ public class Tour {
 	    	}
 	    	totalduration=Maths.round(totalduration, 3);
 	    	return totalduration;
+    		}
+    		else {
+    			return totalduration;
+    		}
     	}
     	
     	//Calculation of duration in static environment, just city objects of type "City"
 		//No toDriveto or Intersection values
     	else {
+    		if(totalduration==0) {
     		TimeElement now = new TimeElement();
     		int hour= now.getHour();
         	long nexthour=now.timeAtNextHour;
@@ -303,8 +309,18 @@ public class Tour {
    		 	totalduration= Maths.round(totalduration,3);
    		 	return totalduration;  	
     	}
+    		else {
+    			return totalduration;
+    		}
+    	}
     }
 
+    public double getRelativeDuration() {
+    	double durationdiff= ((EA.lastEventTime.startInMilli-EA.start.startInMilli)/1000)+getDuration();
+    	return durationdiff;
+    }
+    
+    
     //ToString method
     @Override
     public String toString() {

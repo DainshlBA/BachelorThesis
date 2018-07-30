@@ -96,7 +96,7 @@ public class Run {
 		csvWriter.writeNext(simval);
 		String[]parameter= new String[] {gen,crossover,cRate,mutation,mRate,selection, TMsize,insR,genGap,selPre};
 		csvWriter.writeNext(parameter);
-		String[] header= new String[] {"ID of Location","total duration","avg. duration","standard deviation","calc. time","best Tour"};
+		String[] header= new String[] {"ID of Location","total duration"," realtive total duration","avg. duration","standard deviation","calc. time","best Tour"};
 		csvWriter.writeNext(header);
 		
 		if(EA.iterations1!=0) {
@@ -109,7 +109,7 @@ public class Run {
      			best=EA.best;
      			long last=now1;
      			now1 = System.currentTimeMillis();    			
-    			String[] dataset= new String[] {String.valueOf(z),String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),String.valueOf(now1-last),EA.best.toString()};
+    			String[] dataset= new String[] {String.valueOf(z),String.valueOf(Maths.round(EA.best.getDuration(),0)),"0",String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),String.valueOf(now1-last),EA.best.toString()};
     			csvWriter.writeNext(dataset);
      		}
      	}
@@ -162,7 +162,7 @@ public class Run {
  		  Optimierer.evolvePopulation(false);
  		  Salesman.checkForEvents();
           if (eventcheck==true) {
-        	  String[] dataset2= new String[] {EA.lastEvent.getEventType(),String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),EA.lastEventTime.toString(),EA.best.toString()};
+        	  String[] dataset2= new String[] {EA.lastEvent.getEventType(),String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.best.getRelativeDuration(),0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),EA.lastEventTime.toString(),EA.best.toString()};
         	  csvWriter.writeNext(dataset2);
         	  eventcheck=false;
            }  
