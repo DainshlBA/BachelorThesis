@@ -6,7 +6,7 @@ import java.util.List;
 public class Population {
 
 	//VARIABLES:
-		//Array that holds all of our tours
+	//Array that holds all of our tours
 	 Tour[] tours;														
 	 
 	//CONSTRUCTOR:
@@ -73,11 +73,8 @@ public class Population {
 		}
 		standDev=Math.pow((zaehler/populationSize()), 0.5);
 		return standDev;
-		
-		 
-		 
-		 
 	 }
+	 
 	 
 	 public void deleteTour(Tour t) {
 		 int i=Arrays.asList(tours).indexOf(t);
@@ -85,10 +82,16 @@ public class Population {
 		 tours[i]=null;
 		 }
 	 
+	 
 	 public Tour getTour(int index) {
 	     return tours[index];
 	 }
-	 
+	 public Tour getFittest2() {
+			
+		rankPopulation();
+	
+	     return tours[tours.length-1];
+	 }
 
 	 //Returns the fittest and best individual 
 	 public Tour getFittest() {

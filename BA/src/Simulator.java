@@ -56,9 +56,8 @@ public class Simulator implements RouteServiceListener {
 				currentEvent=upcomingEvents.get(i);
 				timeOverlaps=true;
 				break;
-
 			}
-			else{}
+			
 		}
 		if(timeOverlaps==true) {
 			upcomingEvents.remove(currentEvent);
@@ -97,6 +96,7 @@ public class Simulator implements RouteServiceListener {
 		upcomingEvents = new ArrayList<AtEvent>();
 		pastEvents = new ArrayList<AtEvent>();
 		now=e.eTime;
+		
 		createEvents();
 		System.out.print("duration: ");
 		for(int s=0; s<duration.length;s++) {
@@ -135,7 +135,7 @@ public class Simulator implements RouteServiceListener {
 		for(int j=0; j<duration.length;j++) {														
 				if(durationSumZFEA+duration[j]*Maths.getGammaFaktor(hour)>ttnh) {			
 					double tohour=ttnh-durationSumZFEA		;									
-					double ratio= tohour/GammaDuration[j]*Maths.getGammaFaktor(hour);				
+					double ratio= tohour/duration[j]*Maths.getGammaFaktor(hour);				
 					GammaDuration[j]=ratio*duration[j]*Maths.getGammaFaktor(hour)+(1-ratio)*duration[j]*Maths.getGammaFaktor(h_next);		//multiply ratio with value*factor of past hour and the reverse ratio with the value*factor of upcoming hour
 					ttnh+=3600;																	
 					durationSumZFEA+=GammaDuration[j];
@@ -160,7 +160,7 @@ public class Simulator implements RouteServiceListener {
 	
 		int numberofGPSEvents= (int)(durationSumZFEA/GPS_frequency);
 		double eventTimeSum=0;
-		for(int events=0; events<numberofGPSEvents;events++) {
+		for(int events=0; events<numberofGPSEvents-1;events++) { //ACHTUNG, -1, keine Begründung bis jetzt
 			eventTimeSum+=GPS_frequency;
 			double diffrence=0;
 			double sum_d=0;
@@ -191,7 +191,7 @@ public class Simulator implements RouteServiceListener {
 		}
 		//Create an atCity event for last city object in ArrayList Intersections
 		//Create an atIntersection event for each city object in ArrayList Intersections with the type="Intersection" 
-		//Eventtime is the sum of duration values to the corresponding node
+		//Event time is the sum of duration values to the corresponding node
 		for(int inters=1; inters<Intersection.size();inters++) { 
 			double sumIntD=0;
 			if(inters==Intersection.size()-1) {
@@ -236,7 +236,8 @@ public class Simulator implements RouteServiceListener {
 			System.out.println(upcomingEvents.get(ff));
 		}
 	}
-
+	
+	//add Events chronologically to upcoming event list
 	public void addEventinList(AtEvent e) {
 		if(upcomingEvents.isEmpty()) {
 			upcomingEvents.add(e);

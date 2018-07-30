@@ -66,15 +66,14 @@ public class Route {
 		for( int step=0;step<steps.length();step++) {
 			JSONObject s1= steps.getJSONObject(step);
 			JSONArray intersects= s1.getJSONArray("intersections");
-			int counter=0;
-																			//	System.out.println("Intersects lenghth :"+intersects.length());
+																	
 			for(int inter=0; inter<intersects.length();inter++) {
 				JSONArray location = intersects.getJSONObject(inter).getJSONArray("location");
 				double [] position= new double[2];
 				position[0]=location.getDouble(0);
 				position[1]=location.getDouble(1);
 				
-				//== first City Object "Intersection"
+				// first City Object "Intersection"
 				if(inter==0&&step==0) {
 					if(Run.runs==true) {
 						id=best.getCity(1).getId();
@@ -83,12 +82,10 @@ public class Route {
 						id=best.getCity(0).getId();
 					}
 					City newCity= new City(id,"City",position);
-					//System.out.println(newCity.id+" "+newCity.type+" "+newCity);
-					intersections.add(newCity);
-					counter++;
+					intersections.add(newCity);	
 				}
 				
-				//==last City Object "Intersection"
+				//last City Object "Intersection"
 				else if(step==steps.length()-1 && inter==intersects.length()-1) {
 					City newCity;
 					if(All_Cities.checkForCities()==1) {
@@ -103,21 +100,18 @@ public class Route {
 							id=best.getCity(1).getId();
 						}
 						newCity= new City(id,"City",position);
-					}
-																		//System.out.println(newCity.id+" "+newCity.type+" "+newCity);
-					intersections.add(newCity);
-					counter++;
+					}													
+					intersections.add(newCity);	
 				}
+				//all other intersections
 				else {
-					//													System.out.println("reached at inters: "+inter);
+					//													
 					for(int node=1; node<Nodes_as_City.size();node++) {
 					if(Maths.round(position[1],6)==Maths.round(Nodes_as_City.get(node).getLatitude(),6)&&Maths.round(position[0],6)==Maths.round(Nodes_as_City.get(node).getLongitude(),6)) {
 						 id=Nodes_as_City.get(node).getId();	
 						}
-					}
-																		//System.out.println("id:" +id);
-					City newCity= new City(id,"Intersection",position);//ACHTUNG hier könnt ein fehler sein
-																						//	System.out.println(newCity.id+" "+newCity.type+" "+newCity);
+					}														
+					City newCity= new City(id,"Intersection",position);																		
 					intersections.add(newCity);  
 				}
 			}

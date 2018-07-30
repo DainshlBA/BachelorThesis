@@ -43,7 +43,7 @@ public class Distanzmatrix {
 			matrix= new double[CreatingnumOfCities+1][CreatingnumOfCities+1]; 
 			try {		
 		        //matrix=Maths.getBeispielMatrix();
-		       matrix=Send_Request.createBasicMatrix();
+		       matrix=Send_Request.createsmallMatrix();
 			} 
 			catch (Exception e) {
 				e.printStackTrace();

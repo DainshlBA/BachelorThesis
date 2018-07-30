@@ -52,7 +52,6 @@ public class Run {
 	public static void main(String[] args) throws Exception{
 	TimeElement el= new TimeElement();
 	String nameCSV="./"+el.toString2()+".csv";
-	ArrayList<String[]> CSVdata= new ArrayList<String[]>();
 	
 	//Create new EA class object and create new Simulator class Object Salesman
 	//start the preperation process: Matrix request, set Selection, Recombination and Mutation Operators
@@ -63,17 +62,17 @@ public class Run {
 		EA Optimierer= new EA();	
 		Simulator Salesman= new Simulator();
 		Optimierer.Formalitäten();
+		getParamter();
 		 try (
-	          		Writer writer = Files.newBufferedWriter(Paths.get(nameCSV));
-	          	     CSVWriter csvWriter = new CSVWriter(writer,
+	          	Writer writer = Files.newBufferedWriter(Paths.get(nameCSV));
+	           CSVWriter csvWriter = new CSVWriter(writer,
 	          	                    CSVWriter.DEFAULT_SEPARATOR,
 	          	                    CSVWriter.NO_QUOTE_CHARACTER,
 	          	                    CSVWriter.DEFAULT_ESCAPE_CHARACTER,
 	          	                    CSVWriter.DEFAULT_LINE_END);
-				 ) 
+			) 
 	   {
-	          	   
-	          	
+	          	      	
 		Salesman.addListener(Optimierer);
 		Optimierer.addRouteServiceListener(Salesman);
 		
@@ -82,18 +81,14 @@ public class Run {
 		EA.pop.rankPopulation();
 	
 		best=EA.pop.getFittest();
-		
 		double d=best.getDuration();
-	
-		
+
 		
 		//Set up Logger for LogFiles
 		//Calculate the first solution by number of iteration (iterations1) or by number of iterations without improved solution (iterations2)
 	
      
-//		log.writeInfo("time factor with gamma function: "+Maths.GammaFaktoren[0]+" "+Maths.GammaFaktoren[1]+" "+Maths.GammaFaktoren[2]+" "+)......;
-		 long now1 = System.currentTimeMillis();
-		getParamter();
+		long now1 = System.currentTimeMillis();
 		String[]simval= new String[Maths.Faktoren.length];
 		for(int xxx=0; xxx<Maths.Faktoren.length;xxx++) {
 			simval[xxx]=String.valueOf(Maths.SimulationsFaktoren[xxx]);
@@ -103,7 +98,8 @@ public class Run {
 		csvWriter.writeNext(parameter);
 		String[] header= new String[] {"ID of Location","total duration","avg. duration","standard deviation","calc. time","best Tour"};
 		csvWriter.writeNext(header);
-      if(EA.iterations1!=0) {
+		
+		if(EA.iterations1!=0) {
      		for (int z = 0; z < EA.iterations1; z++) {
           		if(z>1) {
      			lastbest= new Tour(best);
@@ -115,97 +111,80 @@ public class Run {
      			now1 = System.currentTimeMillis();    			
     			String[] dataset= new String[] {String.valueOf(z),String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),String.valueOf(now1-last),EA.best.toString()};
     			csvWriter.writeNext(dataset);
-
      		}
      	}
-     else if(EA.timeStop!=0) {
-    	 TimeElement now= new TimeElement();
-    	 long stop = now.startInMilli+EA.timeStop;
-    	 do {
-    		  Optimierer.evolvePopulation(false);
-        	   best=EA.pop.getFittest();  
-    	 }
-    	 while(System.currentTimeMillis()<=stop);
-     }
+		else if(EA.timeStop!=0) {
+			TimeElement now= new TimeElement();
+			long stop = now.startInMilli+EA.timeStop;
+			do {
+				Optimierer.evolvePopulation(false);
+				best=EA.pop.getFittest();  
+			}
+    		while(System.currentTimeMillis()<=stop);
+		}
     
-     else {
-     	int counter =0;
-        int rundenzähler=0;
-       do {
-    	   lastbest= new Tour (best);
-      	   Optimierer.evolvePopulation(false);
-       	   best=EA.best;
-         	   
-       	   rundenzähler++;
-       	 
-       	   if(rundenzähler >2) {
-       		;	
-          	 
-        	   if(best.getDuration()<lastbest.getDuration()) {
-       			   counter=0;	
-       			long last=now1;
-     			now1 = System.currentTimeMillis();
-       			String[] dataset= new String[] {String.valueOf(counter),String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),String.valueOf(now1-last),EA.best.toString()};
-    			csvWriter.writeNext(dataset);
-       			   System.out.println(best.getDuration()+" "+best);
-         		   }
-         		 
-         	   else{
-         		  counter++;  
-         		  if(counter%1000==0) {
-         			System.out.println(counter);  
-         		  }
-         	   }
-   
-       	   }
-         	  
-       }    	  
-       while (counter<EA.iterations2);       
-     }
+		else {
+			int counter =0;
+			int rundenzähler=0;
+			do {
+				lastbest= new Tour (best);
+				Optimierer.evolvePopulation(false);
+				best=EA.best;  
+				rundenzähler++;
+				if(rundenzähler >2) {
+					if(best.getDuration()<lastbest.getDuration()) {
+						counter=0;	
+						long last=now1;
+						now1 = System.currentTimeMillis();
+						String[] dataset= new String[] {String.valueOf(counter),String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),String.valueOf(now1-last),EA.best.toString()};
+						csvWriter.writeNext(dataset);
+					}		 
+					else{
+        	   		counter++;  
+					}
+				} 
+			}    	  
+			while (counter<EA.iterations2);       
+		}
       
       
       
       String[]ss=new String[] {"__________________________________"};
       csvWriter.writeNext(ss);
+      
       //Start dynamic algorithm process
  	  Optimierer.start();
  	  
-		 String[] dataset= new String[] {"Start",String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),EA.lastEventTime.toString(),EA.best.toString()};
-		csvWriter.writeNext(dataset);
-     	//Let Algorithm and Simulation run while runs==true
-    	do {
-            Optimierer.evolvePopulation(false);
-            Salesman.checkForEvents();
-           if (eventcheck==true) {
-     		 String[] dataset2= new String[] {EA.lastEvent.getEventType(),String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),EA.lastEventTime.toString(),EA.best.toString()};
- 			csvWriter.writeNext(dataset2);
-
-      		 eventcheck=false;
-           }
-          
+ 	  String[] dataset= new String[] {"Start",String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),EA.lastEventTime.toString(),EA.best.toString()};
+ 	  csvWriter.writeNext(dataset);
+ 	  //Let Algorithm and Simulation run while runs==true
+ 	  do {
+ 		  Optimierer.evolvePopulation(false);
+ 		  Salesman.checkForEvents();
+          if (eventcheck==true) {
+        	  String[] dataset2= new String[] {EA.lastEvent.getEventType(),String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),EA.lastEventTime.toString(),EA.best.toString()};
+        	  csvWriter.writeNext(dataset2);
+        	  eventcheck=false;
+           }  
 		}
     	
        while(runs==true);
    
+ 	  
+ 	  
+ 	  
         // Print final results
-    System.out.println();
-    	for(int a=0;a<EA.pop.populationSize();a++) {
-			System.out.println(EA.pop.getTour(a).getDuration()+"   "+EA.pop.getTour(a));
-		}
- System.out.println();
-        System.out.println(("Initial duration : "+d));
-     
-        for(int a=0; a<EA.pop.populationSize();a++) {
-	   System.out.println(EA.pop.getTour(a).getFitness()+"  "+EA.pop.getTour(a).getDuration()+"    "+EA.pop.getTour(a));
-    	   }	    	   System.out.println();
-    
-        System.out.println("Solution:");
-        System.out.println(EA.pop.getFittest()); 
-        System.out.println(EA.pop.getFittest().getDuration());
-        TimeElement ende = new TimeElement();
-        System.out.print(ende);
-	   }  
-    }    
+	 	
+	 	  System.out.println("FINISH!!!");
+	      System.out.println(("Initial duration : "+d));   
+	      System.out.println();
+	      System.out.println("Solution:");
+	      System.out.println(EA.pop.getFittest()); 
+	      System.out.println(EA.pop.getFittest().getDuration());
+	      TimeElement ende = new TimeElement();
+	      System.out.print(ende);
+	  }  
+   }    
 }
 
 

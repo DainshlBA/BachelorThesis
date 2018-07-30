@@ -86,10 +86,10 @@ public class EA implements myListener {
 	static double toDrivetoNode=0;
 	static TimeElement lastEventTime;
 	private ArrayList<RouteServiceListener> listenerList= new ArrayList<RouteServiceListener>();
+	
 	//METHODS:
-	//Methods for setting properties
-
-
+	
+	//Method for setting properties
 	public void Formalitäten(){
 	   
 		System.out.println("Bitte warten.....");
@@ -105,22 +105,20 @@ public class EA implements myListener {
 	}
 	
 	int counter=0;
+	
 	//Methods for evolutionary algorithm
 	//Evolve population by using recombination, mutation, selection and replacing operators
 	//Initializes first population
-	  //If true: Initialize first population and generate individuals
+	//If true: Initialize first population and generate individuals
 	public void evolvePopulation(boolean initilize) {
 	    	    if(OP_Stop==false) {	
 	    	    	if(initilize) {
 	    	    		pop = new Population(popSize, true);
 	    	
 	    	    	}	
+	    	    	//Create new offspring generation according to generation gap
 	    	    	newOffsprings= new Population((int)(popSize*generationGap), false);
-//	    	        if (elitism) {																//Keep best tour elitism=true
-//	    	            newOffsprings.saveTour(0, new Tour(pop.getFittest()));
-//	    	            elitismoffset = 1;		
-//	    	           
-//	    	        }
+
 	    	       if(ox2C){
 	    	    	   for (int z = 0; z < newOffsprings.populationSize(); z++) {   
 							if(Math.random()<=crossoverRate){
@@ -217,28 +215,28 @@ public class EA implements myListener {
 	    	 
 	    	      
 	    	       if(disM) {
-	    	           for (int i = 0; i < newOffsprings.populationSize(); i++) {        //Loop through all tours of new population and use displacement mutation
+	    	           for (int i = 0; i < newOffsprings.populationSize(); i++) {       
 	    	        	   if(Math.random()<=mutationRate) {
 	    	        	   DisplacementMutation(newOffsprings.getTour(i));
 	    	        	   }
 	    	           }
 	    	       }
 	    	       if(mexM) {
-	    	           for (int i = 0; i < newOffsprings.populationSize(); i++) {		//Loop through all tours of new population and use multiple exchange mutation
+	    	           for (int i = 0; i < newOffsprings.populationSize(); i++) {		
 	    	        	   if(Math.random()<=mutationRate) {
 	    	        	   MultipleExchangeMutation(newOffsprings.getTour(i));
 	    	        	   }
 	    	           }
 	    	       }
 	    	       if(excM) {
-	    	           for (int i = 0; i < newOffsprings.populationSize(); i++) {		//Loop through all tours of new population and use exchange mutation
+	    	           for (int i = 0; i < newOffsprings.populationSize(); i++) {
 	    	        	   if(Math.random()<=mutationRate) {
 	    	        	   ExchangeMutation(newOffsprings.getTour(i));
 	    	        	   }
 	    	           }
 	    	       }
 	    	       if(insM) {
-	    	    	   for (int i = 0; i < newOffsprings.populationSize(); i++) {		//Loop through all tours of new population and use insertion mutation
+	    	    	   for (int i = 0; i < newOffsprings.populationSize(); i++) {
 	    	    		   if(Math.random()<=mutationRate) {
 	    	    		   InsertionMutation(newOffsprings.getTour(i));
 	    	    		   }
@@ -252,7 +250,7 @@ public class EA implements myListener {
 	    	    	   }
 	    	       }
 	    	    
-	    	       //Reinsertion
+	    	       //Reinsertion with reinsertion rate and generation gap
 	    	       pop.rankPopulation();
 	    	       newOffsprings.rankPopulation();
     	       
@@ -1897,6 +1895,15 @@ class GUI_Start extends JFrame {
 	}
 	}*/
 //Run the correct operator
+
+/*
+ * //	    	        if (elitism) {																//Keep best tour elitism=true
+//	    	            newOffsprings.saveTour(0, new Tour(pop.getFittest()));
+//	    	            elitismoffset = 1;		
+//	    	           
+//	    	        }
+ */
+
 /*public void operate(String Recombination) {
 	  
 	
