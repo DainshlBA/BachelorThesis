@@ -76,6 +76,39 @@ public class Population {
 	 }
 	 
 	 
+	 public double getAvergeDiffrentCitiesofBest() {
+		 int diffCity=0;
+		 double erg;
+		 Tour best=getFittest();
+		 for(int a=0;a<populationSize();a++) {
+			 for(int aa=0;aa<best.tourSize();aa++) {
+				 if(best.getCity(aa).getId()!=getTour(a).getCity(aa).getId()) {
+					 diffCity++;
+				 }
+			 }
+		 }
+		 erg=Maths.round((diffCity/(populationSize()-1)),1);
+		 return erg;
+	 }
+	 public double getAvergeDiffrentCities() {
+		 int diffCity=0;
+		 double erg=0;
+		
+		 for(int b=0; b<populationSize();b++) {
+			 for(int a=0;a<populationSize();a++) {
+				 for(int aa=0;aa<getTour(b).tourSize();aa++) {
+					 if(getTour(b).getCity(aa).getId()!=getTour(a).getCity(aa).getId()) {
+						 diffCity++;
+					 }
+				 }
+			 }
+			 erg+=Maths.round((diffCity/(populationSize()-1)),1);
+			 diffCity=0;
+		 }
+		 erg=Maths.round((erg/populationSize()),0);
+		 return erg;
+	 }
+	 
 	 public void deleteTour(Tour t) {
 		 int i=Arrays.asList(tours).indexOf(t);
 		
