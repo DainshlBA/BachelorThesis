@@ -39,6 +39,7 @@ public class Send_Request {
 	public static JSONObject createRouteRequest(Tour fittest) throws Exception{	
 		JSONObject Way;		//Creates String with URL, applies gogo and saves response in an JSONObejct
 		String gesamt= "https://w-bdlab-s1.hs-karlsruhe.de/osrm/route/v1/driving/";						//Fixed URL Start
+		
 		City From;
 		City To;
 		if(Run.runs==true) {
@@ -54,7 +55,7 @@ public class Send_Request {
 		double x2=To.getLongitude();															
 		double y2= To.getLatitude();															
 		gesamt+=Double.toString(x1)+","+Double.toString(y1)+";"+Double.toString(x2)+","+Double.toString(y2)+"?steps=true&annotations=true"; 
-		//System.out.println(gesamt);
+		System.out.println(gesamt);
 		StringBuffer response = gogo(gesamt);									
 		Way= new JSONObject(response.toString());									
 		return Way;

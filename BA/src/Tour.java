@@ -260,7 +260,7 @@ public class Tour {
 		//No toDriveto or Intersection values
     	else {
     		if(totalduration==0) {
-    		TimeElement now = new TimeElement();
+    		TimeElement now = Run.start;
     		int hour= now.getHour();
         	long nexthour=now.timeAtNextHour;
         	long sumMilli=now.startInMilli;

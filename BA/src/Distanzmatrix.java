@@ -24,7 +24,7 @@ public class Distanzmatrix {
 	// and add to All_Cities class
 	public static void createAll_Cities (){		
 			double[][] zwischenmatrix;
-			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\testing";
+			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\testing2";
 			readFile rf= new readFile(s);
 			rf.readingFile();
 			CreatingnumOfCities=rf.getNumberofCities();		

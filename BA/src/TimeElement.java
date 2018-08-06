@@ -60,6 +60,19 @@ public class TimeElement{
 		return timeToNextHour;						
 	}
 	
+	
+	public void setStartTimetoHour(int hour) {
+		int year=start.getTime().getYear()+1900;
+		int month=start.getTime().getMonth();
+		int day= start.getTime().getDate();
+		
+		int minute=0;
+		int second=0;
+		
+		start.set(year,month,day,hour,minute,second);
+		startInMilli=start.getTimeInMillis();
+	}
+	
 	@SuppressWarnings("deprecation")
 	public String toString() {
 		 String s="";
@@ -68,7 +81,7 @@ public class TimeElement{
 	 }
 	public String toString2() {
 		 String s="";
-		 s=String.valueOf(start.getTime().getDate())+"_"+String.valueOf(start.getTime().getMonth())+"_"+String.valueOf(start.getTime().getYear()+1900)+"___"+String.valueOf(start.getTime().getHours())+"_"+String.valueOf(start.getTime().getMinutes()+"_"+String.valueOf(start.getTime().getSeconds()));
+		 s=String.valueOf(start.getTime().getHours())+":"+String.valueOf(start.getTime().getMinutes()+":"+String.valueOf(start.getTime().getSeconds()));
 		 return s;
 	 }
 	

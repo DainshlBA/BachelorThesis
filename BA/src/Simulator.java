@@ -21,7 +21,7 @@ public class Simulator implements RouteServiceListener {
 	Tour best;
 	double[] duration;
 	double[] GammaDuration;
-	int GPS_frequency;
+	static int GPS_frequency;
 	double k;
 	double theta;
 	double shiftDistance;
@@ -49,9 +49,10 @@ public class Simulator implements RouteServiceListener {
 		AtEvent currentEvent = null;
 		boolean timeOverlaps=false;
 		long now= System.currentTimeMillis();
+		long MillisSinceStart= now-EA.dynamicStartinMilli;
 		
 		for(int i=0; i<upcomingEvents.size();i++){
-			if(now>( upcomingEvents.get(i)).getEventTime()){
+			if((Run.start.startInMilli+MillisSinceStart)>( upcomingEvents.get(i)).getEventTime()){
 				pastEvents.add(upcomingEvents.get(i));
 				currentEvent=upcomingEvents.get(i);
 				timeOverlaps=true;

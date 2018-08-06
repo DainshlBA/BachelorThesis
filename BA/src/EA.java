@@ -28,18 +28,19 @@ public class EA implements myListener {
 	static boolean OP_Stop=false;
 	static boolean lastCityvisited=false;
 	static boolean START=false;
+	static long dynamicStartinMilli;
 	
 	//EA parameters
     static int numOfCities;
-	static int popSize=50;			
+	static int popSize=20;			
 	static int iterations1=500;
 	static int iterations2=0;
 	static long timeStop=0;
-	static double mutationRate =0.6;
+	static double mutationRate =0.5;
 	static double crossoverRate =0.8;
 	static double selectionPressure=1.2;
-	static double generationGap=0.2;
-    static int tournamentSize = 1;	
+	static double generationGap=0.4;
+    static int tournamentSize = 3;	
     static double reinsertionRate=0.2;
     
     
@@ -63,8 +64,8 @@ public class EA implements myListener {
 	static boolean invM=false;
 	static boolean excM=true;
 	static boolean mexM=false;
-	static boolean RWS=true;
-	static boolean TMS=false;
+	static boolean RWS=false;
+	static boolean TMS=true;
 	static boolean elitism=true;
 	
 	//API request data
@@ -752,9 +753,9 @@ public class EA implements myListener {
     public void start() throws Exception {
     	START=true;
     	Route route= new Route();
-		lastEventTime= new TimeElement();
-		
-		
+		lastEventTime= Run.start;  //Wird zu RUN.el
+		dynamicStartinMilli=System.currentTimeMillis();
+		System.out.println(lastEventTime);
 		blockedCities=2;
 		route.WayFromTo(best);
 		durations=route.Duration;
@@ -860,7 +861,7 @@ public class EA implements myListener {
 		
 		Run.runs=true;
 		start= new TimeElement();
-		Run.eventcheck=true;
+		
 		System.out.println("Best duration: "+best.getDuration()+" tdtN: "+toDrivetoNode+" tdtI: "+toDrivetoIntersection+" tdtC: "+ toDrivetoCity +"Int-Val: "+best.IntersectionValue+" symmVal: "+ best.allsymmValue +"   Best: "+best.toString());
 
 //		log.writeInfo("POPULATION AFTER START");
@@ -891,7 +892,7 @@ public class EA implements myListener {
 		lastEvent=e;
 		lastEventTime= new TimeElement(e.getEventTime());	
 		System.out.println("Arrived at City: "+String.valueOf(e.location.getId()));
-		
+		System.out.println(lastEventTime);
 		Tour lastRequest=null;
 		
 		//Turn of dynamic algorithm when we are back at our starting city
@@ -1069,7 +1070,7 @@ public class EA implements myListener {
 		lastEvent=e;
 		lastEventTime= new TimeElement(e.getEventTime());	
 		System.out.println("Arrived at Intersection: "+String.valueOf(e.location.getId()));
-
+		System.out.println(lastEventTime);
 		
 		
 		//if there is a change in solution since the last event location
@@ -1280,7 +1281,7 @@ public class EA implements myListener {
 		toDrivetoNode=0;
 		lastEvent=e;
 		lastEventTime= new TimeElement(e.getEventTime());
-	
+	System.out.println(lastEventTime);
 		
 		//Allocate the nodes we are in between through spanning a rectangle with coordinates and 
 		//analyze if we are located in this rectangle
