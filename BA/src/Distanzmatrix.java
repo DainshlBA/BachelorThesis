@@ -24,7 +24,7 @@ public class Distanzmatrix {
 	// and add to All_Cities class
 	public static void createAll_Cities (){		
 			double[][] zwischenmatrix;
-			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\testing2";
+			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Provinz_Kraichtal.txt";
 			readFile rf= new readFile(s);
 			rf.readingFile();
 			CreatingnumOfCities=rf.getNumberofCities();		
@@ -41,12 +41,20 @@ public class Distanzmatrix {
 	//Saving values in double array matrix
 	public static void createDurationMatrix() {
 			matrix= new double[CreatingnumOfCities+1][CreatingnumOfCities+1]; 
+			readFile rf= new readFile();
 			try {		
 		        //matrix=Maths.getBeispielMatrix();
-		       matrix=Send_Request.createsmallMatrix();
+//		       matrix=rf.readingMatrix("C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Matrix_klein.txt");
+			matrix=Send_Request.createsmallMatrix();
 			} 
 			catch (Exception e) {
 				e.printStackTrace();
+			}
+			for(int a=0;a<matrix.length;a++) {
+				for(int aa=0;aa<matrix.length;aa++) {
+					System.out.print(matrix[a][aa] +" ");
+				}
+				System.out.println();
 			}
 		}
 	
@@ -80,12 +88,12 @@ public class Distanzmatrix {
 		for(int i=0;i<matrix.length-1;i++) {
 			matrix[matrix.length-1][i]=IntersectionMatrix[i];
 		}
-		for(int i=0; i<24;i++) {
-			faktor= Maths.getFaktor(i);
-			for(int j=0;j<matrix.length-1;j++) {		
-					allMatrix.get(i)[matrix.length-1][j]=IntersectionMatrix[j]*faktor;
-			}		
-		}
+//		for(int i=0; i<24;i++) {
+//			faktor= Maths.getFaktor(i);
+//			for(int j=0;j<matrix.length-1;j++) {		
+//					allMatrix.get(i)[matrix.length-1][j]=IntersectionMatrix[j]*faktor;
+//			}		
+//		}
 	
 	}
 

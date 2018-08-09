@@ -94,7 +94,7 @@ static TimeElement start;
 		csvWriter.writeNext(simval);
 		String[]parameter= new String[] {gen,crossover,cRate,mutation,mRate,selection, TMsize,insR,genGap,selPre,GPSf};
 		csvWriter.writeNext(parameter);
-		String[] header= new String[] {"Iteration","total duration","avg. duration","standard deviation","avg.DiffrentCitiesofBest","avg.DiffrentCitiesofAll","calc. time","time"};
+		String[] header= new String[] {"Iteration","total duration","relative totalduration","avg. duration","standard deviation","avg.DiffrentCitiesofBest","avg.DiffrentCitiesofAll","calc. time","time"};
 		csvWriter.writeNext(header);
 		csvWriter.close(); 
 		if(EA.iterations1!=0) {
@@ -113,11 +113,16 @@ static TimeElement start;
      			now1 = System.currentTimeMillis();   
      			long dif= now1-realstart;
      			TimeElement action= new TimeElement(start.startInMilli+dif);
-    			String[] dataset= new String[] {String.valueOf(z),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf(now1-last), action.toString2()};
 				if(z==EA.iterations1-1||(z>1&&best.getDuration()<lastbest.getDuration())) {
+	    			String[] dataset= new String[] {String.valueOf(z),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf(now1-last), action.toString2()};
 
     			csvWriter2.writeNext(dataset);
     			csvWriter2.close();
+				}
+				else if(z%1000==0) {
+	    			String[] dataset= new String[] {String.valueOf(z),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf(now1-last), action.toString2()};
+					csvWriter2.writeNext(dataset);
+	    			csvWriter2.close();
 				}
      		}
      	}
@@ -144,7 +149,7 @@ static TimeElement start;
 						counter=0;	
 						long last=now1;
 						now1 = System.currentTimeMillis();
-						String[] dataset= new String[] {String.valueOf(counter),String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),String.valueOf(now1-last),EA.best.toString()};
+						String[] dataset= new String[] {String.valueOf(counter),String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.best.getRelativeDuration(), 0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),String.valueOf(now1-last),EA.best.toString()};
 						csvWriter.writeNext(dataset);
 					}		 
 					else{
@@ -171,7 +176,7 @@ static TimeElement start;
         	  CSVWriter csvWriter3 = new CSVWriter(new FileWriter(nameCSV,true)); 
         	  long last=now1;
    			now1 = System.currentTimeMillis(); 
-        	  String[] dataset2= new String[] {(EA.lastEvent.getEventType()+"-"+EA.lastEvent.location.getId()),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf(now1-last),EA.lastEventTime.toString2()};
+        	  String[] dataset2= new String[] {(EA.lastEvent.getEventType()+"-"+EA.lastEvent.location.getId()),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf(now1-last),EA.lastEventTime.toString2()};
         	  csvWriter3.writeNext(dataset2);
         	  eventcheck=false;
         	  csvWriter3.close();

@@ -22,7 +22,9 @@ public class readFile {
 		this.path=f;
 		this.file= new File(f);
 	}
-	
+	public readFile(){
+		
+	}
 //MEHTODS:
 	//Returns number of lines of the tsp file which contain values
 	public int getNumberofCities(){
@@ -33,6 +35,41 @@ public class readFile {
 	public double[][] getAllCoordinates(){
 		return coordinates;
 	}
+	public double[][] readingMatrix(String m){
+		countlines=0;
+		double[][] erg=new double[Distanzmatrix.CreatingnumOfCities][Distanzmatrix.CreatingnumOfCities];
+		try{
+			File ff= new File(m);
+			br= new BufferedReader(new FileReader(ff));
+			s = new Scanner(ff);
+		}
+		catch(FileNotFoundException e){
+			System.out.print("File not found");
+		}
+	
+		String line="";
+
+		try{
+			while((line=br.readLine())!=null){
+				countlines+=1;
+			}
+		}
+		
+		catch(IOException ioex){
+			System.out.print("Error reading file");
+		}
+		System.out.println(countlines);
+		for(int j=0;j<countlines-1;j++){
+			for(int k=0;k<countlines-1;k++) {
+		String b= s.next();
+		System.out.println(b);
+		erg[j][k]=Double.parseDouble(b);
+	
+		}
+		}
+		return erg;
+	}
+	
 	
 	//reads TSP instance and saves coordinates in double array/
 	public void readingFile(){

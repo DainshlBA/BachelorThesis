@@ -204,7 +204,7 @@ public class Send_Request {
 			} 
 		 }
 		 String gesamt=urlAnfang+zwischenerg;
-		
+		System.out.println();
 		 StringBuffer response = gogo(gesamt); 	 
 	     JSONObject jobj= new JSONObject(response.toString());
 	     JSONArray dura_1 = jobj.getJSONArray("durations");  
