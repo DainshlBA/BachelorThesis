@@ -57,7 +57,7 @@ static TimeElement start;
 		 long realstart= System.currentTimeMillis();
 		 start.setStartTimetoHour(hourstart);
 		 System.out.println(start);
-		String nameCSV="./"+"123"+".csv";
+		String nameCSV="./"+"88"+".csv";
 		
 		//Create new EA class object and create new Simulator class Object Salesman
 		//start the preperation process: Matrix request, set Selection, Recombination and Mutation Operators
@@ -119,7 +119,7 @@ static TimeElement start;
     			csvWriter2.writeNext(dataset);
     			csvWriter2.close();
 				}
-				else if(z%1000==0) {
+				else if(z%2500==0) {
 	    			String[] dataset= new String[] {String.valueOf(z),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf(now1-last), action.toString2()};
 					csvWriter2.writeNext(dataset);
 	    			csvWriter2.close();
@@ -161,7 +161,7 @@ static TimeElement start;
 		}
       
       
-
+/*
       
       //Start dynamic algorithm process
  	  Optimierer.start();
@@ -184,8 +184,8 @@ static TimeElement start;
 		}
     	
        while(runs==true);
-   
- 	 CSVWriter csvWriter4 = new CSVWriter(new FileWriter(nameCSV,true)); 
+   */
+// 	 CSVWriter csvWriter4 = new CSVWriter(new FileWriter(nameCSV,true)); 
  	  
  	  
         // Print final results
@@ -198,9 +198,9 @@ static TimeElement start;
 	      System.out.println(EA.pop.getFittest().getDuration());
 	      TimeElement ende = new TimeElement();
 	      System.out.print(ende);
-	      String[] SE= new String[]{"START: "+start.toString(),"ENDE: "+ende.toString()};
-	      csvWriter4.writeNext(SE);
-	      csvWriter4.close();
+//	      String[] SE= new String[]{"START: "+start.toString(),"ENDE: "+ende.toString()};
+//	      csvWriter4.writeNext(SE);
+//	      csvWriter4.close();
 	  
    }    
 }

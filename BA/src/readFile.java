@@ -58,11 +58,11 @@ public class readFile {
 		catch(IOException ioex){
 			System.out.print("Error reading file");
 		}
-		System.out.println(countlines);
-		for(int j=0;j<countlines-1;j++){
-			for(int k=0;k<countlines-1;k++) {
+	
+		for(int j=0;j<40;j++){
+			for(int k=0;k<40;k++) {
 		String b= s.next();
-		System.out.println(b);
+		
 		erg[j][k]=Double.parseDouble(b);
 	
 		}

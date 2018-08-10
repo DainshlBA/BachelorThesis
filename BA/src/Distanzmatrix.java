@@ -24,7 +24,7 @@ public class Distanzmatrix {
 	// and add to All_Cities class
 	public static void createAll_Cities (){		
 			double[][] zwischenmatrix;
-			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Provinz_Kraichtal.txt";
+			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Provinz40.txt";
 			readFile rf= new readFile(s);
 			rf.readingFile();
 			CreatingnumOfCities=rf.getNumberofCities();		
@@ -44,8 +44,8 @@ public class Distanzmatrix {
 			readFile rf= new readFile();
 			try {		
 		        //matrix=Maths.getBeispielMatrix();
-//		       matrix=rf.readingMatrix("C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Matrix_klein.txt");
-			matrix=Send_Request.createsmallMatrix();
+	       matrix=rf.readingMatrix("C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Provinz40_Matrix.txt");
+//			matrix=Send_Request.createsmallMatrix();
 			} 
 			catch (Exception e) {
 				e.printStackTrace();

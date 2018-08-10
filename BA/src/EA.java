@@ -33,7 +33,7 @@ public class EA implements myListener {
 	//EA parameters
     static int numOfCities;
 	static int popSize=20;			
-	static int iterations1=5000;
+	static int iterations1=250000;
 	static int iterations2=0;
 	static long timeStop=0;
 	static double mutationRate =0.5;
