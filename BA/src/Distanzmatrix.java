@@ -43,9 +43,9 @@ public class Distanzmatrix {
 			matrix= new double[CreatingnumOfCities+1][CreatingnumOfCities+1]; 
 			readFile rf= new readFile();
 			try {		
-		        //matrix=Maths.getBeispielMatrix();
-	       matrix=rf.readingMatrix("C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Provinz40_Matrix.txt");
-//			matrix=Send_Request.createsmallMatrix();
+		      
+//	       matrix=rf.readingMatrix("C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Provinz40_Matrix.txt");
+//	       	matrix=Send_Request.createsmallMatrix();
 			} 
 			catch (Exception e) {
 				e.printStackTrace();

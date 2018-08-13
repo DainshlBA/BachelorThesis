@@ -37,7 +37,7 @@ public class readFile {
 	}
 	public double[][] readingMatrix(String m){
 		countlines=0;
-		double[][] erg=new double[Distanzmatrix.CreatingnumOfCities][Distanzmatrix.CreatingnumOfCities];
+		double[][] erg=new double[Distanzmatrix.CreatingnumOfCities+1][Distanzmatrix.CreatingnumOfCities+1];
 		try{
 			File ff= new File(m);
 			br= new BufferedReader(new FileReader(ff));
@@ -59,13 +59,19 @@ public class readFile {
 			System.out.print("Error reading file");
 		}
 	
-		for(int j=0;j<40;j++){
-			for(int k=0;k<40;k++) {
-		String b= s.next();
-		
-		erg[j][k]=Double.parseDouble(b);
-	
-		}
+		for(int j=0;j<Distanzmatrix.CreatingnumOfCities;j++){
+			for(int k=0;k<Distanzmatrix.CreatingnumOfCities;k++) {
+				String b= s.next();
+//				if(k==Distanzmatrix.CreatingnumOfCities-1) {
+//					erg[j][k]=0;
+//				}
+//				else if(j==Distanzmatrix.CreatingnumOfCities-1) {
+//					erg[j][k]=0;
+//				}
+//				else {
+					erg[j][k]=Double.parseDouble(b);
+//				}
+			}
 		}
 		return erg;
 	}

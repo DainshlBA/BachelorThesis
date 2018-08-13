@@ -129,7 +129,7 @@ public class Tour {
      
     //Calculates the total duration of the tour depending on the status of the algorithm and procoess 
     public double getDuration() {
-    	
+//    	System.out.println(this);
     	totalduration=0;
     	//Values just needed for logger results evaluation
     	IntersectionValue=0;
@@ -141,7 +141,7 @@ public class Tour {
 			//actual hour
     		int hour= EA.lastEventTime.getHour();
 			//Time in Millis at next full hour
-        	long nexthour=EA.lastEventTime.timeAtNextHour;
+        	long nexthour=EA.lastEventTime.getMilliatNextHour();
 			//Sum for comparing if there is an houroverlaps
         	long sumMilli=EA.lastEventTime.startInMilli;
 			//value of next full hour
@@ -323,7 +323,8 @@ public class Tour {
     		if(totalduration==0) {
     		TimeElement now = Run.start;
     		int hour= now.getHour();
-        	long nexthour=now.timeAtNextHour;
+    		now.getTimeToNextHour();
+        	long nexthour=now.getMilliatNextHour();
         	long sumMilli=now.startInMilli;
         
    		 	for (int cityIndex=0; cityIndex < tourSize(); cityIndex++) { 		
@@ -337,10 +338,16 @@ public class Tour {
                 } 
    		 		int a = Integer.parseInt(fromCity.getId());
    		 		int b = Integer.parseInt(destinationCity.getId());
+//   		 		System.out.println("SumMilli:"+new TimeElement(sumMilli));
+//   		 		System.out.println(Maths.getFaktor(hour));
+//   		 	System.out.println("nexthour: "+new TimeElement(nexthour));
+//   		 	System.out.println( hour + " " + nexthour + " "+ sumMilli+ " "+ Distanzmatrix.matrix[a][b]);
    		 		if(sumMilli+Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour)*1000>nexthour) {
    		 			long ttnh=nexthour-sumMilli;
 	    			totalduration+=Maths.round(ttnh/1000,3);
+//	    			System.out.println("laps: "+ totalduration);
 	    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),0);
+//	    			System.out.println("x: "+x);
 	    			sumMilli=nexthour;
 	    			nexthour+=3600000;	
 	    			hour+=1;
@@ -353,12 +360,16 @@ public class Tour {
 	    				long y=(long)(Distanzmatrix.matrix[a][b]*1000)-x;
 	    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
 	    					sumMilli+=y*Maths.getFaktor(hour);
+//	    					System.out.println("y: "+y);
 	    					totalduration+=(y/1000)*Maths.getFaktor(hour);
+//	    					System.out.println("if lap: "+ totalduration);
 	    					finish=true;
 	    				}
 	    				else {
 	    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 0);
+//	    					System.out.println("x: "+x);
 	    					totalduration+=3600;
+//	    					System.out.println("else lap: "+ totalduration);
 	    					sumMilli=nexthour;
 	    					nexthour+=3600000;	
 	    	    			hour+=1;
@@ -371,11 +382,16 @@ public class Tour {
    		 		}
    		 		else {
 					allsymmValue+=Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour);
+//					System.out.println(Distanzmatrix.matrix[a][b]);
+//					System.out.println(Maths.getFaktor(hour));
+
 					totalduration+=Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour);	
+//					System.out.println("no: "+totalduration);
 					sumMilli+=Distanzmatrix.matrix[a][b]*1000*Maths.getFaktor(hour);	
    		 		}
    		 	}
    		 	totalduration= Maths.round(totalduration,3);
+//   		 	System.out.println("DONE");
    		 	return totalduration;  	
     	}
     		else {

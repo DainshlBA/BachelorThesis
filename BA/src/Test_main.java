@@ -20,7 +20,10 @@ public class Test_main {
 		return erg;
 	}
 	public static void main(String[]args) throws Exception {
-		 int a= (int)(Math.random()*4) +1;
+		String s="1534064344765";
+		long l = Long.parseLong(s);
+		TimeElement a= new TimeElement(l);
+	
 	System.out.println(a);
 	
 	}

@@ -7,13 +7,13 @@ public class TimeElement{
 //VARIABLES:
 	Calendar start;
 	long startInMilli;
-	long timeAtNextHour;
+	
 	
 //CONSTRUCTOR:
 	public TimeElement(){
 		 this.start=Calendar.getInstance();
 		this.startInMilli= start.getTimeInMillis();
-		getMilliatNextHour();
+		
 	}
 	
 	public TimeElement(long timeinMilli) {
@@ -22,7 +22,7 @@ public class TimeElement{
 		 
 		 this.start=cal;
 		this.startInMilli=start.getTimeInMillis();
-		getMilliatNextHour();
+		
 	}
 	
 //METHODS:
@@ -32,17 +32,19 @@ public class TimeElement{
 		return start.getTime().getHours();
 		
 	}
-	public void getMilliatNextHour() { 	
+	public long getMilliatNextHour() { 	
 		int year=start.getTime().getYear()+1900;
 		int month=start.getTime().getMonth();
 		int day= start.getTime().getDate();
 		int hour=start.getTime().getHours()+1;
 		int minute=0;
 		int second=0;
+		long timeAtNextHour;
 		Calendar nextHour= Calendar.getInstance();
 		nextHour.set(year,month,day,hour,minute,second);	
-		
+//		System.out.println("TE: "+nextHour.getTime());
 		timeAtNextHour= nextHour.getTimeInMillis();  
+		return timeAtNextHour;
 		
 								
 	}
@@ -61,7 +63,7 @@ public class TimeElement{
 	}
 	
 	
-	public void setStartTimetoHour(int hour) {
+	public void setStartTimetoHour(int hour2) {
 		int year=start.getTime().getYear()+1900;
 		int month=start.getTime().getMonth();
 		int day= start.getTime().getDate();
@@ -69,8 +71,9 @@ public class TimeElement{
 		int minute=0;
 		int second=0;
 		
-		start.set(year,month,day,hour,minute,second);
+		start.set(year,month,day,hour2,minute,second);
 		startInMilli=start.getTimeInMillis();
+//		System.out.println(start.getTime());
 	}
 	
 	@SuppressWarnings("deprecation")

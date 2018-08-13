@@ -37,7 +37,7 @@ public class EA implements myListener {
 	static int iterations2=0;
 	static long timeStop=0;
 	static double mutationRate =0.5;
-	static double crossoverRate =0.8;
+	static double crossoverRate =1.0;
 	static double selectionPressure=1.2;
 	static double generationGap=0.4;
     static int tournamentSize = 3;	
@@ -64,8 +64,8 @@ public class EA implements myListener {
 	static boolean invM=false;
 	static boolean excM=true;
 	static boolean mexM=false;
-	static boolean RWS=false;
-	static boolean TMS=true;
+	static boolean RWS=true;
+	static boolean TMS=false;
 	static boolean elitism=true;
 	
 	//API request data
@@ -1382,7 +1382,7 @@ public class EA implements myListener {
     		//summation variable for comparison with nexthour to detect an overlapos 
     		long sumDurTF=lastEventTime.startInMilli+(long)toDrivetoNode*1000;
 	    	//Time in Millis at next full hour
-    		long nexthour=lastEventTime.timeAtNextHour;
+    		long nexthour=lastEventTime.getMilliatNextHour();
 	    	
 	    	
 	    	//Check if sum overlapsed an hour and other special cases
@@ -1449,7 +1449,7 @@ public class EA implements myListener {
     		//summation variable for comparison with nexthour to detect an overlapos 
     		long sumDurTF=lastEventTime.startInMilli+(long)toDrivetoNode*1000;
 	    	//Time in Millis at next full hour
-    		long nexthour=lastEventTime.timeAtNextHour;
+    		long nexthour=lastEventTime.getMilliatNextHour();
 	    	
 	    	
 	    	//Check if sum overlapsed an hour and other special cases
@@ -1512,7 +1512,7 @@ public class EA implements myListener {
 
      	else if(Location=="Node") {
      		int hour= lastEventTime.getHour();
-	    	long nexthour=lastEventTime.timeAtNextHour;
+	    	long nexthour=lastEventTime.getMilliatNextHour();
 	    	long sumDurTF=lastEventTime.startInMilli;   	
 	    	int h_next;
 	    	
