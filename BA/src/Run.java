@@ -119,11 +119,6 @@ static TimeElement start;
     			csvWriter2.writeNext(dataset);
     			csvWriter2.close();
 				}
-				else if(z%2500==0) {
-	    			String[] dataset= new String[] {String.valueOf(z),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf(now1-last), action.toString2()};
-					csvWriter2.writeNext(dataset);
-	    			csvWriter2.close();
-				}
      		}
      	}
 		else if(EA.timeStop!=0) {
