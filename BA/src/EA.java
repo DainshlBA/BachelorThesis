@@ -36,17 +36,17 @@ public class EA implements myListener {
 	static int iterations1=250000;
 	static int iterations2=0;
 	static long timeStop=0;
-	static double mutationRate =0.5;
+	static double mutationRate =0.7;
 	static double crossoverRate =1.0;
 	static double selectionPressure=1.2;
-	static double generationGap=0.4;
+	static double generationGap=0.5;
     static int tournamentSize = 3;	
     static double reinsertionRate=0.2;
     
     
 	static double c=1;
-	static double theta=0.75;
-	static double shiftDistance=0.25;
+	static double theta=0.5;
+	static double shiftDistance=0.5;
 	static int blockedCities=1;
 	static int elitismoffset=0;
 	static Population pop;
@@ -86,6 +86,8 @@ public class EA implements myListener {
 	static TimeElement lastEventTime;
 	static TimeElement start;
 	private ArrayList<RouteServiceListener> listenerList= new ArrayList<RouteServiceListener>();
+	
+	static boolean changeatInter=false;
 	
 	//METHODS:
 	
@@ -755,9 +757,9 @@ public class EA implements myListener {
     public void start() throws Exception {
     	START=true;
     	Route route= new Route();
-		lastEventTime= Run.start;  //Wird zu RUN.el
+		lastEventTime= Run.start; 
 		
-		System.out.println(lastEventTime);
+	
 		blockedCities=2;
 		route.WayFromTo(best);
 		durations=route.Duration;
@@ -894,7 +896,7 @@ public class EA implements myListener {
 		lastEvent=e;
 		lastEventTime= new TimeElement(e.getEventTime());	
 		System.out.println("Arrived at City: "+String.valueOf(e.location.getId()));
-		System.out.println(lastEventTime);
+
 		Tour lastRequest=null;
 		
 		//Turn of dynamic algorithm when we are back at our starting city
@@ -1072,12 +1074,12 @@ public class EA implements myListener {
 		lastEvent=e;
 		lastEventTime= new TimeElement(e.getEventTime());	
 		System.out.println("Arrived at Intersection: "+String.valueOf(e.location.getId()));
-		System.out.println(lastEventTime);
+	
 		
 		
 		//if there is a change in solution since the last event location
 		if(All_Cities.checkForCities()>1 && !(lastbest.getCity(2).getId().equals(best.getCity(2).getId()))) {  //EQUAL
-			
+			changeatInter=true;
 			Route route= new Route();
 			try {
 				route.WayFromTo(best);
@@ -1283,7 +1285,7 @@ public class EA implements myListener {
 		toDrivetoNode=0;
 		lastEvent=e;
 		lastEventTime= new TimeElement(e.getEventTime());
-	System.out.println(lastEventTime);
+
 		
 		//Allocate the nodes we are in between through spanning a rectangle with coordinates and 
 		//analyze if we are located in this rectangle

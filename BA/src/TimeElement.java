@@ -70,10 +70,10 @@ public class TimeElement{
 		
 		int minute=0;
 		int second=0;
-		
+	
 		start.set(year,month,day,hour2,minute,second);
 		startInMilli=start.getTimeInMillis();
-//		System.out.println(start.getTime());
+	
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -85,6 +85,11 @@ public class TimeElement{
 	public String toString2() {
 		 String s="";
 		 s=String.valueOf(start.getTime().getHours())+":"+String.valueOf(start.getTime().getMinutes()+":"+String.valueOf(start.getTime().getSeconds()));
+		 return s;
+	 }
+	public String toString3() {
+		 String s="";
+		 s=String.valueOf(start.getTime().getHours())+""+String.valueOf(start.getTime().getMinutes()+""+String.valueOf(start.getTime().getSeconds()));
 		 return s;
 	 }
 	

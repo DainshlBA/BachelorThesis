@@ -44,7 +44,7 @@ public class Distanzmatrix {
 			readFile rf= new readFile();
 			try {		
 		      
-//	       matrix=rf.readingMatrix("C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Provinz40_Matrix.txt");
+      matrix=rf.readingMatrix("C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Provinz40_Matrix.txt");
 //	       	matrix=Send_Request.createsmallMatrix();
 			} 
 			catch (Exception e) {

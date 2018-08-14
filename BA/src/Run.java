@@ -57,7 +57,7 @@ static TimeElement start;
 		 long realstart= System.currentTimeMillis();
 		 start.setStartTimetoHour(hourstart);
 		 System.out.println(start);
-		String nameCSV="./"+"88"+".csv";
+		String nameCSV="./"+"dyn1408"+".csv";
 		
 		//Create new EA class object and create new Simulator class Object Salesman
 		//start the preperation process: Matrix request, set Selection, Recombination and Mutation Operators
@@ -101,20 +101,28 @@ static TimeElement start;
      		for (int z = 0; z < EA.iterations1; z++) {
      			CSVWriter csvWriter2 = new CSVWriter(new FileWriter(nameCSV,true)); 
           		if(z>1) {
-          			lastbest= new Tour(best);
+          			lastbest= new Tour(EA.pop.getFittest());
+//          			System.out.println("z: "+z+"    "+lastbest.checkforOrderDiffrence(EA.best));
           		}
           		if(z%10000==0) {
-          			System.out.println(z);
+//          			System.out.println(z);
           		}
      			Optimierer.evolvePopulation(false);
-     			best=EA.best;
-     			
+     			best=EA.pop.getFittest();
+     			if(z>1&&lastbest.getDuration()<best.getDuration()) {
+//     				System.err.println("FEHLER");
+//     				System.out.println("L "+lastbest.getDuration()+" "+lastbest);
+//					System.out.println("B "+best.getDuration()+" "+best);
+     			}
      			long last=now1;
      			now1 = System.currentTimeMillis();   
      			long dif= now1-realstart;
      			TimeElement action= new TimeElement(start.startInMilli+dif);
-				if(z==EA.iterations1-1||(z>1&&best.getDuration()<lastbest.getDuration())) {
-	    			String[] dataset= new String[] {String.valueOf(z),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf(now1-last), action.toString2()};
+				if(z==EA.iterations1-1/*||(z>1&&best.getDuration()<lastbest.getDuration())*/) {
+//					System.out.println("WECHSEL "+best.checkforOrderDiffrence(lastbest));
+//					System.out.println("L "+lastbest.getDuration()+" "+lastbest);
+//				System.out.println("B "+best.getDuration()+" "+best);
+	    			String[] dataset= new String[] {String.valueOf(z),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()), action.toString2(),EA.best.toString()};
 
     			csvWriter2.writeNext(dataset);
     			csvWriter2.close();
@@ -144,7 +152,7 @@ static TimeElement start;
 						counter=0;	
 						long last=now1;
 						now1 = System.currentTimeMillis();
-						String[] dataset= new String[] {String.valueOf(counter),String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.best.getRelativeDuration(), 0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),String.valueOf(now1-last),EA.best.toString()};
+						String[] dataset= new String[] {String.valueOf(counter),String.valueOf(Maths.round(EA.best.getDuration(),0)),String.valueOf(Maths.round(EA.best.getRelativeDuration(), 0)),String.valueOf(Maths.round(EA.pop.getAverageDuration(),0)),String.valueOf(Maths.round(EA.pop.getStandardDeviation(),0)),EA.best.toString()};
 						csvWriter.writeNext(dataset);
 					}		 
 					else{
@@ -156,35 +164,46 @@ static TimeElement start;
 		}
       
       
-/*
-      
+
+		  CSVWriter csvWriter3 = new CSVWriter(new FileWriter(nameCSV,true)); 
       //Start dynamic algorithm process
  	  Optimierer.start();
  	  
  	  String[] dataset= new String[] {"Start",String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),"-",EA.lastEventTime.toString2()};
- 	  csvWriter.writeNext(dataset);
+ 	  csvWriter3.writeNext(dataset);
+ 	  csvWriter3.close();
  	  //Let Algorithm and Simulation run while runs==true
  	  do {
  		  Optimierer.evolvePopulation(false);
  		  Salesman.checkForEvents();
           if (eventcheck==true) {
-        	  CSVWriter csvWriter3 = new CSVWriter(new FileWriter(nameCSV,true)); 
+        	  CSVWriter csvWriter33 = new CSVWriter(new FileWriter(nameCSV,true)); 
         	  long last=now1;
    			now1 = System.currentTimeMillis(); 
-        	  String[] dataset2= new String[] {(EA.lastEvent.getEventType()+"-"+EA.lastEvent.location.getId()),String.valueOf((int)EA.best.getDuration()),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf(now1-last),EA.lastEventTime.toString2()};
-        	  csvWriter3.writeNext(dataset2);
+   			if(EA.changeatInter==true) {
+   				EA.changeatInter=false;
+          	  String[] dataset2= new String[] {(EA.lastEvent.getEventType()+"-Change-"+EA.lastEvent.location.getId()),String.valueOf((int)EA.best.getDuration()),String.valueOf(Maths.round(EA.best.getRelativeDuration(),0)),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),EA.lastEventTime.toString2()};
+          	 csvWriter33.writeNext(dataset2);
+       	  eventcheck=false;
+       	  csvWriter33.close();
+   			}
+   			else {
+        	  String[] dataset2= new String[] {(EA.lastEvent.getEventType()+"-"+EA.lastEvent.location.getId()),String.valueOf((int)EA.best.getDuration()),String.valueOf(Maths.round(EA.best.getRelativeDuration(),0)),String.valueOf((int)EA.pop.getAverageDuration()),String.valueOf((int)EA.pop.getStandardDeviation()),String.valueOf((int)EA.pop.getAvergeDiffrentCitiesofBest()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),String.valueOf((int)EA.pop.getAvergeDiffrentCities()),EA.lastEventTime.toString2()};
+        	  csvWriter33.writeNext(dataset2);
         	  eventcheck=false;
-        	  csvWriter3.close();
+        	  csvWriter33.close();
+   			}
            }  
 		}
     	
        while(runs==true);
- 	  */
-// 	 CSVWriter csvWriter4 = new CSVWriter(new FileWriter(nameCSV,true)); 
+ 	
+ 	 CSVWriter csvWriter4 = new CSVWriter(new FileWriter(nameCSV,true)); 
  	  
  	  
         // Print final results
-	 	
+	 
+		
 	 	  System.out.println("FINISH!!!");
 	      System.out.println(("Initial duration : "+d));   
 	      System.out.println();
@@ -193,9 +212,9 @@ static TimeElement start;
 	      System.out.println(EA.pop.getFittest().getDuration());
 	      TimeElement ende = new TimeElement();
 	      System.out.print(ende);
-//	      String[] SE= new String[]{"START: "+start.toString(),"ENDE: "+ende.toString()};
-//	      csvWriter4.writeNext(SE);
-//	      csvWriter4.close();
+      String[] SE= new String[]{"START: "+start.toString(),"ENDE: "+ende.toString()};
+      csvWriter4.writeNext(SE);
+      csvWriter4.close();
 	  
    }    
 }

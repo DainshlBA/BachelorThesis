@@ -401,7 +401,8 @@ public class Tour {
     }
 
     public double getRelativeDuration() {
-    	double durationdiff= ((EA.lastEventTime.startInMilli-EA.start.startInMilli)/1000)+getDuration();
+    	
+    	double durationdiff= ((EA.lastEventTime.startInMilli-Run.start.startInMilli)/1000)+getDuration();
     	return durationdiff;
     }
     
