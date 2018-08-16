@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 //class that reads our TSP-Instance file
 public class readFile {
@@ -73,9 +74,58 @@ public class readFile {
 //				}
 			}
 		}
+
+		s.close();
 		return erg;
 	}
 	
+	public ArrayList<City> readTour(String p) {
+		ArrayList<City> tour= new ArrayList<City>();
+		try{
+			File ff= new File(p);
+			br= new BufferedReader(new FileReader(ff));
+			s = new Scanner(ff);
+			
+		}
+		catch(FileNotFoundException e){
+			System.out.print("File not found");
+		}
+		String b;
+		String c;
+		String a;
+		int count=0;
+		while(s.hasNext()) {
+			a=s.next();
+			b=s.next();
+			c=s.next();
+			City c1= new City(a,"City",Double.parseDouble(c),Double.parseDouble(b));
+			tour.add(c1);
+		}
+
+		s.close();
+		return tour;
+	}
+	
+	public double[] readGammaFaktoren(String p) {
+		double []fak = new double[24];
+		try{
+			File ff= new File(p);
+			br= new BufferedReader(new FileReader(ff));
+			s = new Scanner(ff);
+			
+		}
+		catch(FileNotFoundException e){
+			System.out.print("File not found");
+		}
+		String b;
+		for(int a=0;a<24;a++) {
+			b=s.next();
+			fak[a]=Double.parseDouble(b);
+		}
+
+		s.close();
+		return fak;
+	}
 	
 	//reads TSP instance and saves coordinates in double array/
 	public void readingFile(){

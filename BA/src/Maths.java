@@ -41,57 +41,64 @@ public class Maths {
 	//EAmmaFunction for simulating duration values
 	public static void goGamma(double k, double theta, double shiftDistance) {
 		SimulationsFaktoren= new double[Faktoren.length];
-		for(int a=0; a<Faktoren.length;a++) {
-			
-			boolean accept = false;
-			Random rng = new Random(Calendar.getInstance().getTimeInMillis() + Thread.currentThread().getId());
-		    if (k < 1) {
-		    	// Weibull algorithm
-		    	double c = (1 / k);
-		    	double d = ((1 - k) * Math.pow(k, (k / (1 - k))));
-		    	double u, v, z, e, x;
-		    	
-		    	do {
-		    		u = rng.nextDouble();
-		    		v = rng.nextDouble();
-		    		z = -Math.log(u);
-		    		e = -Math.log(v);
-		    		x = Math.pow(z, c);
-		    		
-		    		if ((z + e) >= (d + x)) {
-		    			accept = true;
-		    			}
-		    		} while (!accept);
-		    	double GammaValue =  ((x * theta) + shiftDistance);
-		    
-		    	SimulationsFaktoren[a] = Faktoren[a] * GammaValue;
-		    	
-		    } 
-		    else {	
-			 // Cheng's algorithm   	
-			 double b = (k - Math.log(4));
-			 double c = (k + Math.sqrt(2 * k - 1));
-			 double lam = Math.sqrt(2 * k - 1);
-			 double cheng = (1 + Math.log(4.5));
-			 double u, v, x, y, z, r;
-			 
-			 do {
-				 u = rng.nextDouble();
-				 v = rng.nextDouble();
-				 y = ((1 / lam) * Math.log(v / (1 - v)));
-				 x = (k * Math.exp(y));
-				 z = (u * v * v);
-				 r = (b + (c * y) - x);
+		if(Run.initialtest==false) {
+			for(int a=0; a<Faktoren.length;a++) {
+				
+				boolean accept = false;
+				Random rng = new Random(Calendar.getInstance().getTimeInMillis() + Thread.currentThread().getId());
+			    if (k < 1) {
+			    	// Weibull algorithm
+			    	double c = (1 / k);
+			    	double d = ((1 - k) * Math.pow(k, (k / (1 - k))));
+			    	double u, v, z, e, x;
+			    	
+			    	do {
+			    		u = rng.nextDouble();
+			    		v = rng.nextDouble();
+			    		z = -Math.log(u);
+			    		e = -Math.log(v);
+			    		x = Math.pow(z, c);
+			    		
+			    		if ((z + e) >= (d + x)) {
+			    			accept = true;
+			    			}
+			    		} while (!accept);
+			    	double GammaValue =  ((x * theta) + shiftDistance);
+			    
+			    	SimulationsFaktoren[a] = Faktoren[a] * GammaValue;
+			    	
+			    } 
+			    else {	
+				 // Cheng's algorithm   	
+				 double b = (k - Math.log(4));
+				 double c = (k + Math.sqrt(2 * k - 1));
+				 double lam = Math.sqrt(2 * k - 1);
+				 double cheng = (1 + Math.log(4.5));
+				 double u, v, x, y, z, r;
 				 
-				 if ((r >= ((4.5 * z) - cheng)) || (r >= Math.log(z))) {
-					 accept = true;
-					 }
+				 do {
+					 u = rng.nextDouble();
+					 v = rng.nextDouble();
+					 y = ((1 / lam) * Math.log(v / (1 - v)));
+					 x = (k * Math.exp(y));
+					 z = (u * v * v);
+					 r = (b + (c * y) - x);
+					 
+					 if ((r >= ((4.5 * z) - cheng)) || (r >= Math.log(z))) {
+						 accept = true;
+						 }
+					 
+					 } while (!accept);
 				 
-				 } while (!accept);
-			 
-			 double GammaValue = ((x * theta) + shiftDistance);
-			 SimulationsFaktoren[a] = Faktoren[a] * GammaValue;
-		    }  
+				 double GammaValue = ((x * theta) + shiftDistance);
+				 SimulationsFaktoren[a] = Faktoren[a] * GammaValue;
+			    }  
+			}
+		}
+		else {
+			readFile rf = new readFile();
+			String path="C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\GFaktoren.txt";
+			SimulationsFaktoren=rf.readGammaFaktoren(path);
 		}
 	}
 }

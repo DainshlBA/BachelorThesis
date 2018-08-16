@@ -183,7 +183,9 @@ public class Tour {
     			}
     			while(finish==false);   	
 	    	}	
-	    
+	    	else {
+	    		sumMilli+=totalduration*1000;
+	    	}
 	  
 	    	
 	    	// If situation requires a value of the "Intersection" matrix range
@@ -307,7 +309,7 @@ public class Tour {
 				}
 	    	}
 	    	
-	    	totalduration=Maths.round(totalduration, 3);
+	    	totalduration=Maths.round(totalduration, 1);
 	    	return totalduration;
 	    	
     		}
@@ -323,9 +325,97 @@ public class Tour {
     		if(totalduration==0) {
     		TimeElement now = Run.start;
     		int hour= now.getHour();
-    		now.getTimeToNextHour();
+    		
         	long nexthour=now.getMilliatNextHour();
         	long sumMilli=now.startInMilli;
+       
+   		 	for (int cityIndex=0; cityIndex < tourSize(); cityIndex++) { 		
+   		 		City fromCity = getCity(cityIndex);
+   		 		City destinationCity;	  	
+   		 		if(cityIndex+1 < tourSize()){
+   		 			destinationCity = getCity(cityIndex+1);
+   		 		}
+                else{    	 
+                    destinationCity = Distanzmatrix.startCity;
+                } 
+   		 		int a = Integer.parseInt(fromCity.getId());
+   		 		int b = Integer.parseInt(destinationCity.getId());
+   		 		
+//   		 		System.out.println("SumMilli:"+new TimeElement(sumMilli));
+//   		 		System.out.println(Maths.getFaktor(hour));
+//   		 	System.out.println("nexthour: "+new TimeElement(nexthour));
+//   		 	System.out.println( hour + " " + nexthour + " "+ sumMilli+ " "+ Distanzmatrix.matrix[a][b]);
+   		 		if(sumMilli+Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour)*1000>nexthour) {
+   		 			long ttnh=nexthour-sumMilli;
+	    			totalduration+=Maths.round(ttnh/1000,1);
+//	    			System.out.println("laps: "+ totalduration);
+	    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),3);
+//	    			System.out.println("x: "+x);
+	    			sumMilli=nexthour;
+	    			nexthour+=3600000;	
+	    			hour+=1;
+					if(hour==24) {
+						hour=0;
+					}
+	    			boolean finish=false;
+	    			do {
+	    				
+	    				long y=(long)(Distanzmatrix.matrix[a][b]*1000)-x;
+	    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
+	    					sumMilli+=y*Maths.getFaktor(hour);
+//	    					System.out.println("y: "+y);
+	    					totalduration+=Maths.round((y/1000)*Maths.getFaktor(hour),1);
+//	    					System.out.println("if lap: "+ totalduration);
+	    					finish=true;
+	    				}
+	    				else {
+	    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 3);
+//	    					System.out.println("x: "+x);
+	    					totalduration+=3600;
+//	    					System.out.println("else lap: "+ totalduration);
+	    					sumMilli=nexthour;
+	    					nexthour+=3600000;	
+	    	    			hour+=1;
+	    					if(hour==24) {
+	    						hour=0;
+	    					}
+	    				}
+	    			}
+	    			while(finish==false);   
+   		 		}
+   		 		else {
+					allsymmValue+=Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour);
+//					System.out.println(Distanzmatrix.matrix[a][b]);
+//					System.out.println(Maths.getFaktor(hour));
+
+					totalduration+=Maths.round(Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour),1);	
+//					System.out.println("no: "+totalduration);
+					sumMilli+=Distanzmatrix.matrix[a][b]*1000*Maths.getFaktor(hour);	
+   		 		}
+   		 	}
+   		 	totalduration= Maths.round(totalduration,1);
+//   		 	System.out.println("DONE");
+   		 	return totalduration;  	
+    	}
+    		else {
+    			return totalduration;
+    		}
+    	}
+    }
+    
+    public double getstaticduration() {
+     	System.out.println(this);
+    	totalduration=0;
+    	//Values just needed for logger results evaluation
+    	IntersectionValue=0;
+    	allsymmValue=0;
+    	if(totalduration==0) {
+    		//actual hour
+    		int hour= EA.lastEventTime.getHour();
+			//Time in Millis at next full hour
+        	long nexthour=EA.lastEventTime.getMilliatNextHour();
+			//Sum for comparing if there is an houroverlaps
+        	long sumMilli=EA.lastEventTime.startInMilli;
         
    		 	for (int cityIndex=0; cityIndex < tourSize(); cityIndex++) { 		
    		 		City fromCity = getCity(cityIndex);
@@ -397,9 +487,9 @@ public class Tour {
     		else {
     			return totalduration;
     		}
-    	}
+    	
+    	
     }
-
     public double getRelativeDuration() {
     	
     	double durationdiff= ((EA.lastEventTime.startInMilli-Run.start.startInMilli)/1000)+getDuration();
@@ -414,6 +504,18 @@ public class Tour {
         for (int i = 0; i < tourSize(); i++) {
         	if(getCity(i)!=null) {
             geneString += "ID:"+getCity(i).getId()+" "+getCity(i).getLatitude()+" "+getCity(i).getLongitude()+"|";
+        	}
+        	else {
+        		geneString+="  Null  ";
+        	}
+        }
+        return geneString;
+    }
+    public String toString2() {
+        String geneString = "|";
+        for (int i = 0; i < tourSize(); i++) {
+        	if(getCity(i)!=null) {
+            geneString += getCity(i).getId()+" "+getCity(i).getLatitude()+" "+getCity(i).getLongitude()+" ";
         	}
         	else {
         		geneString+="  Null  ";

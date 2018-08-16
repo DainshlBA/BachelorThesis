@@ -62,6 +62,17 @@ public class TimeElement{
 		return timeToNextHour;						
 	}
 	
+	public void setTimetoMod10() {
+		int year=start.getTime().getYear()+1900;
+		int month=start.getTime().getMonth();
+		int day= start.getTime().getDate();
+		int hour=start.getTime().getHours()+1;
+		int minute=start.getTime().getMinutes();
+		int mod10 =start.getTime().getSeconds()%10;
+		int second=start.getTime().getSeconds()-mod10;
+		start.set(year,month,day,hour,minute,second);
+		startInMilli=start.getTimeInMillis();
+	}
 	
 	public void setStartTimetoHour(int hour2) {
 		int year=start.getTime().getYear()+1900;

@@ -29,6 +29,7 @@ public class EA implements myListener {
 	static boolean lastCityvisited=false;
 	static boolean START=false;
 	static long dynamicStartinMilli;
+	static boolean testinitial=false;
 	
 	//EA parameters
     static int numOfCities;
@@ -44,13 +45,16 @@ public class EA implements myListener {
     static double reinsertionRate=0.2;
     
     
+    
+    
 	static double c=1;
-	static double theta=0.5;
-	static double shiftDistance=0.5;
+	static double theta=0.25;
+	static double shiftDistance=0.75;
 	static int blockedCities=1;
 	static int elitismoffset=0;
 	static Population pop;
 	static Population newOffsprings;  
+	static Population initialTourPop;
 	
 	
 	//Operators
@@ -74,7 +78,7 @@ public class EA implements myListener {
 	static double[] durations;
 	
 	//Eventhandling and duration calculation
-	static int GPS_frequency=8;
+	static int GPS_frequency=5;
 	static int EventCounter=0;
 	static Tour best;
 	static Tour lastbest;
@@ -97,13 +101,12 @@ public class EA implements myListener {
 		System.out.println("Bitte warten.....");
 		System.out.println();
 		System.out.println();
-
+		
+		
 		Distanzmatrix.createAll_Cities();
+		
 		numOfCities=Distanzmatrix.CreatingnumOfCities;
 		Distanzmatrix.createDurationMatrix();
-		for(int a=0;a<Maths.Faktoren.length;a++) {
-			System.out.print(Maths.getFaktor(a)+" ");
-		}
 		Maths.goGamma(c, theta, shiftDistance);
 		System.out.println("Einstellung sind getroffen worden!");
 	}
@@ -114,14 +117,25 @@ public class EA implements myListener {
 	//Evolve population by using recombination, mutation, selection and replacing operators
 	//Initializes first population
 	//If true: Initialize first population and generate individuals
-	public void evolvePopulation(boolean initilize) {
-	    	    if(OP_Stop==false) {	
-	    	    	if(initilize) {
-	    	    		pop = new Population(popSize, true);
-	    	
+	public void evolvePopulation(boolean initilize, boolean selfCreation) {
+	    	if(testinitial==false) {  
+	    		if(OP_Stop==false) {	
+	    	    	if(initilize&&selfCreation==false) {
+	    	    		pop = new Population(popSize, true,selfCreation);
+	    	    		
 	    	    	}	
+	    	    	else if(selfCreation) {
+	    	    		pop = new Population(1, true,selfCreation);
+    	    			initialTourPop= new Population(1, false, false);
+    	    			Tour ttt= new Tour(pop.getTour(0));
+    	    			initialTourPop.saveTour(0, ttt);
+    	    			testinitial=true;
+    	    			best=pop.getTour(0);
+    	    			System.out.println(initialTourPop.getTour(0));
+    	    		}
+	    	    	if(testinitial!=true) {
 	    	    	//Create new offspring generation according to generation gap
-	    	    	newOffsprings= new Population((int)(popSize*generationGap), false);
+	    	    	newOffsprings= new Population((int)(popSize*generationGap), false,false);
 
 	    	    	
 	    	    	  for (int z = 0; z < newOffsprings.populationSize(); z++) {  
@@ -234,8 +248,9 @@ public class EA implements myListener {
 	    	       pop.rankPopulation();
 	    	    }    		    	    		    	  
 	    	    best= pop.getFittest();
-		}
-	    	 
+	   		}
+	    }
+	}
 	public Tour Selection(Population popul){
 		Tour parent;
 		if(TMS==true){
@@ -717,7 +732,7 @@ public class EA implements myListener {
     //Choose number of random tours (=tournament size) and select the fittest of them
     //Selection operators
     private static Tour tournamentSelection(Population pop) {				    
-        Population tournament = new Population(tournamentSize, false);		 
+        Population tournament = new Population(tournamentSize, false,false);		 
         for (int i = 0; i < tournamentSize; i++) { 							
             int randomId = (int) (Math.random() * pop.populationSize());	
             tournament.saveTour(i, pop.getTour(randomId));
@@ -801,7 +816,10 @@ public class EA implements myListener {
 		}
 		All_Cities.getCity(pos2).setCoordinates(Intersections.get(Intersections.size()-1).getLongitude(), Intersections.get(Intersections.size()-1).getLatitude());
 		Nodes.set(Nodes.size()-1, Intersections.get(Intersections.size()-1));
-
+		for(int a =0; a<durations.length;a++) {
+			
+			System.out.print(" "+durations[a]);
+		}
 	
 		//Inform simulator
 		RouteServiceEvent event= new RouteServiceEvent(this, Nodes,Intersections, durations,best,lastEventTime);
@@ -974,7 +992,11 @@ public class EA implements myListener {
 			}
 			Nodes.set(0, Intersections.get(0)); 
 			Nodes.set(Nodes.size()-1, Intersections.get(Intersections.size()-1));
-			
+			System.out.println();
+			for(int a =0; a<durations.length;a++) {
+				
+				System.out.print(" "+durations[a]);
+			}
 			//Inform simulator
 			RouteServiceEvent event= new RouteServiceEvent(this, Nodes,Intersections, durations,best,lastEventTime);
 			fireEvent(event);		
@@ -1377,7 +1399,8 @@ public class EA implements myListener {
 	//Considers daytime through hour depending factor multiplication
 	//toDriveto is always involved to allocate total distance with Tour.getDuration()
 	public static void toDriveto(String Location,int start, int end, double ratio) { //Wenn kein Node, ratio das übergeben wird ist irrelevant
-    	if(Location=="City") {
+    	
+		if(Location=="City") {
     		
     		//Get actual hour, time in Millis at next full hour, Time in Millis right know for summation and add toDrivetoNode value
     		int hour= lastEventTime.getHour();
@@ -1415,7 +1438,7 @@ public class EA implements myListener {
 	    				long y=(long)(durations[a]*1000)-x;
 	    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
 	    					sumDurTF+=y*Maths.getFaktor(hour);
-	    					toDrivetoCity+=y*Maths.getFaktor(hour);
+	    					toDrivetoCity+=(y/1000)*Maths.getFaktor(hour);
 	    					finish=true;
 	    				}
 	    				else {
@@ -1482,7 +1505,7 @@ public class EA implements myListener {
 	    				long y=(long)(durations[a]*1000)-x;
 	    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
 	    					sumDurTF+=y*Maths.getFaktor(hour);
-	    					toDrivetoIntersection+=y*Maths.getFaktor(hour);
+	    					toDrivetoIntersection+=(y/1000)*Maths.getFaktor(hour);
 	    					finish=true;
 	    				}
 	    				else {
@@ -1525,10 +1548,38 @@ public class EA implements myListener {
 				h_next=hour+1;		
 			}	    			
 			if(sumDurTF+durations[start]*ratio*1000*Maths.getFaktor(hour)>nexthour) {
-				long houroverlaps=(long)(sumDurTF+durations[start]*ratio*Maths.getFaktor(hour)*1000-nexthour);		;								
-				double houroverlapsratio= Maths.round(houroverlaps/(durations[start]*ratio*Maths.getFaktor(hour)*1000),5);							
-				toDrivetoNode+=(1-houroverlapsratio)*durations[start]*ratio*Maths.getFaktor(hour)+(houroverlapsratio)*durations[start]*Maths.getFaktor(h_next);	
-			}	
+				long ttnh=nexthour-sumDurTF;
+    			toDrivetoNode+=Maths.round(ttnh/1000,3);
+    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),0);
+    			sumDurTF=nexthour;
+    			nexthour+=3600000;	
+    			hour+=1;
+				if(hour==24) {
+					hour=0;
+				}
+    			boolean finish=false;
+    			do {
+    				
+    				long y=(long)(durations[start]*ratio*1000)-x;
+    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
+    					sumDurTF+=y*Maths.getFaktor(hour);
+    					toDrivetoNode+=(y/1000)*Maths.getFaktor(hour);
+    					finish=true;
+    				}
+    				else {
+    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 0);
+    					toDrivetoNode+=3600;
+    					sumDurTF=nexthour;
+    					nexthour+=3600000;	
+    	    			hour+=1;
+    					if(hour==24) {
+    						hour=0;
+    					}
+    				}
+    			}
+    			while(finish==false);   			
+			
+			}
     		else {
     			toDrivetoNode+=durations[start]*ratio*Maths.getFaktor(hour);	
     		}

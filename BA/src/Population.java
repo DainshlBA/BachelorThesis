@@ -12,15 +12,28 @@ public class Population {
 	//CONSTRUCTOR:
 	 // Initializes Tour Array
 	 // Initialize==true : Initialize a new population and randomly generate individuals
-	 public Population(int populationSize, boolean initialize) {
+	 public Population(int populationSize, boolean initialize, boolean selfCreation) {
 	     tours = new Tour[populationSize];         
-	     if (initialize) {											
-	     	for (int i = 0; i < populationSize; i++) {				  
-	             Tour newTour = new Tour();
-	             newTour.generateIndividual();
-	             saveTour(i, newTour);									     
-	         }
+	     if (initialize) {	
+	    	if(selfCreation==false) {
+		     	for (int i = 0; i < populationSize; i++) {				  
+		             Tour newTour = new Tour();
+		             newTour.generateIndividual();
+		             saveTour(i, newTour);									     
+		        }
+	     	}
+	    	else {
+	    		String path="C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Tour.txt";
+	    		readFile rf = new readFile();
+	    		Tour t= new Tour(rf.readTour(path));
+	    		saveTour(0,t);
+	    		for(int a=0; a<t.tourSize();a++) {
+	    			All_Cities.addCity(t.getCity(a));
+	    		}
+	    		Distanzmatrix.startCity=All_Cities.getCity(0);
+	    	}
 	     }
+	
 	 }
 	 
 	//METHODS:

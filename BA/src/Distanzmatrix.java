@@ -29,11 +29,13 @@ public class Distanzmatrix {
 			rf.readingFile();
 			CreatingnumOfCities=rf.getNumberofCities();		
 			zwischenmatrix=rf.getAllCoordinates();
+			if(Run.initialtest==false) {
 			for(int a=0;a<CreatingnumOfCities;a++) {			
 				City neueStaedte = new City(Integer.toString(a),"City",zwischenmatrix[a][1],zwischenmatrix[a][0]);			//Wechsel von Position Latitude -> Longitude
 				All_Cities.addCity(neueStaedte);
 			}
 			startCity=new City(All_Cities.getCity(0));	
+			}
 	}
 	
 	//First table service request with Send_Request class
@@ -50,12 +52,7 @@ public class Distanzmatrix {
 			catch (Exception e) {
 				e.printStackTrace();
 			}
-			for(int a=0;a<matrix.length;a++) {
-				for(int aa=0;aa<matrix.length;aa++) {
-					System.out.print(matrix[a][aa] +" ");
-				}
-				System.out.println();
-			}
+
 		}
 	
 	// create all 24 matrixes by multiplying each value with its hour factor
