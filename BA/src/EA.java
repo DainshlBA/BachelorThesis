@@ -1,20 +1,5 @@
 
-
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JRadioButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 
 
 //Main algorithm and optimizer based on evolutionary algorithm
@@ -1340,14 +1325,7 @@ public class EA implements myListener {
      		int hour= lastEventTime.getHour();
 	    	long nexthour=lastEventTime.getMilliatNextHour();
 	    	long sumDurTF=lastEventTime.startInMilli;   	
-	    	int h_next;
-	    	
-			if(hour==23) {
-				h_next=0;
-			}
-			else {
-				h_next=hour+1;		
-			}	    			
+	        			
 			if(sumDurTF+durations[start]*ratio*1000*Maths.getFaktor(hour)>nexthour) {
 				long ttnh=nexthour-sumDurTF;
     			toDrivetoNode+=Maths.round(ttnh/1000,3);

@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.concurrent.SynchronousQueue;
 //Class that initiates Matrix-Request and saves and manages all returned duration values 
 //No objects required because of static class variables
 public class D_Matrix {
@@ -76,7 +75,6 @@ public class D_Matrix {
 	// Overwrite old values and add new values to matrix in extra row
 	// Add hour value to each of the 24 matrixes
 	public static void updateAllMatrix() throws Exception {
-		double faktor;
 		double[]IntersectionMatrix=Send_Request.IntersectionMatrix(EA.best.getCity(1));
 		
 		for(int i=0;i<matrix.length-1;i++) {

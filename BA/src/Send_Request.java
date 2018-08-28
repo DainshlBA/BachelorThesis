@@ -228,8 +228,6 @@ public class Send_Request {
 		double[][] erg=new double[D_Matrix.CreatingnumOfCities+1][D_Matrix.CreatingnumOfCities+1];
 		int numberofCities=All_Cities.numberOfCities();
 		int numberOfCases;
-		int SplittedtoAdd;
-		int numberSplittedMatrix = 0;
 		int numberSymmMatrix;		
 		if(numberofCities%50==0){
 			numberOfCases= numberofCities/50;		

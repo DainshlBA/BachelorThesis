@@ -1,7 +1,6 @@
 
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+
 //class that holds all of out individuals/tours
 public class Population {
 

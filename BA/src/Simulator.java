@@ -2,7 +2,6 @@
 
 import java.util.ArrayList;
 
-import javax.rmi.ssl.SslRMIClientSocketFactory;
 //Simulator that for event-based and time-depending simulation
 //Using Gamma-function for simulating new values
 //checks after every iteration of the EA if it has to fire an event

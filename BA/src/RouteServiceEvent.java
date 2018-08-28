@@ -1,5 +1,4 @@
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.EventObject;
 // Event class for activating the Simulation class "Simulator" after a RouteRequest

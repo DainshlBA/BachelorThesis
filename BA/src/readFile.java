@@ -95,7 +95,6 @@ public class readFile {
 		String b;
 		String c;
 		String a;
-		int count=0;
 		while(s.hasNext()) {
 			a=s.next();
 			b=s.next();
