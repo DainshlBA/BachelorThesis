@@ -1,5 +1,3 @@
-
-
 //Listener interface for atEvents
 public interface myListener {
 

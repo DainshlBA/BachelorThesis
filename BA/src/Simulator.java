@@ -15,6 +15,8 @@ public class Simulator implements RouteServiceListener {
 	public static ArrayList<AtEvent> upcomingEvents = new ArrayList<AtEvent>();
 	//List for past Events
 	private ArrayList<AtEvent> pastEvents = new ArrayList<AtEvent>();
+	//ListenerList
+	private ArrayList<myListener> listenerList= new ArrayList<myListener>();
 	//Simulation parameters and data
 	ArrayList<City> Nodes;
 	ArrayList<City> Intersection;
@@ -26,8 +28,7 @@ public class Simulator implements RouteServiceListener {
 	double theta;
 	double shiftDistance;
 	TimeElement now= new TimeElement();
-	//ListenerList
-	private ArrayList<myListener> listenerList= new ArrayList<myListener>();
+
 
 //CONSTRUCTOR
 	public Simulator() {
@@ -88,7 +89,7 @@ public class Simulator implements RouteServiceListener {
 	}
 	
 	//Event handling methods for RouteServicEvent
-	//Starts simulation of AtEvents
+	//Starts creation of AtEvents
 	public void EAdidRequest(RouteServiceEvent e) {
 		Nodes=e.Nodes;
 		Intersection= e.Intersection;
@@ -99,29 +100,15 @@ public class Simulator implements RouteServiceListener {
 		now=e.eTime;
 		
 		createEvents();
-		System.out.print("duration: ");
-		for(int s=0; s<duration.length;s++) {
-			System.out.print(duration[s]+" ");
-		}
-		System.out.println();
-		System.out.print("nodes: ");
-		for(int s=0; s<Nodes.size();s++) {
-			System.out.print(Nodes.get(s)+" ");
-		}
-		System.out.println();
-		System.out.print("Intersection: ");
-		for(int s=0; s<Intersection.size();s++) {
-			System.out.print(Intersection.get(s)+" ");
-		}
-		System.out.println();
-		
 	}
 	
 	//Creates all atEvents of the current route, "GPS", "AtIntersection" & "atCity
 	public void createEvents() {
-												
-		//Use Gamma function on each value of duration															
-		//ToDriveto Calculation with duration[] values and hour-depending factor
+																											
+		//Calculation of duration values for simulation
+		//Multiply each value of duration array with simulation time factors
+		//Compare actual sum of values to time and consider hour overlap
+		
 		GammaDuration= new double[duration.length];
 		int h_next=0;			
 		int hour= now.getHour();	
@@ -177,6 +164,7 @@ public class Simulator implements RouteServiceListener {
 					break;
 				}
 			}
+			
 			//Calculate coordinates with ratio factor, create the events and add to upcoming event list
 			double lat1= Nodes.get(positionInDurArray).getLatitude();
 			double lon1=Nodes.get(positionInDurArray).getLongitude();
@@ -231,10 +219,6 @@ public class Simulator implements RouteServiceListener {
 					}	
 				}
 			}	
-		}
-	
-		for(int ff=0;ff<upcomingEvents.size();ff++) {
-			System.out.println(upcomingEvents.get(ff));
 		}
 	}
 	

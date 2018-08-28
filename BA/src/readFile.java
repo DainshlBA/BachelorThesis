@@ -36,9 +36,10 @@ public class readFile {
 	public double[][] getAllCoordinates(){
 		return coordinates;
 	}
+	//Reads a matrix text file and returns it as 2-dimensional array
 	public double[][] readingMatrix(String m){
 		countlines=0;
-		double[][] erg=new double[Distanzmatrix.CreatingnumOfCities+1][Distanzmatrix.CreatingnumOfCities+1];
+		double[][] erg=new double[D_Matrix.CreatingnumOfCities+1][D_Matrix.CreatingnumOfCities+1];
 		try{
 			File ff= new File(m);
 			br= new BufferedReader(new FileReader(ff));
@@ -60,13 +61,13 @@ public class readFile {
 			System.out.print("Error reading file");
 		}
 	
-		for(int j=0;j<Distanzmatrix.CreatingnumOfCities;j++){
-			for(int k=0;k<Distanzmatrix.CreatingnumOfCities;k++) {
+		for(int j=0;j<D_Matrix.CreatingnumOfCities;j++){
+			for(int k=0;k<D_Matrix.CreatingnumOfCities;k++) {
 				String b= s.next();
-//				if(k==Distanzmatrix.CreatingnumOfCities-1) {
+//				if(k==D_Matrix.CreatingnumOfCities-1) {
 //					erg[j][k]=0;
 //				}
-//				else if(j==Distanzmatrix.CreatingnumOfCities-1) {
+//				else if(j==D_Matrix.CreatingnumOfCities-1) {
 //					erg[j][k]=0;
 //				}
 //				else {
@@ -79,6 +80,7 @@ public class readFile {
 		return erg;
 	}
 	
+	//Reads the text file with the static initial tour
 	public ArrayList<City> readTour(String p) {
 		ArrayList<City> tour= new ArrayList<City>();
 		try{
@@ -106,6 +108,7 @@ public class readFile {
 		return tour;
 	}
 	
+	//Reads the simulation factors of the real tour simulation to use them for simulating the static initial tour
 	public double[] readGammaFaktoren(String p) {
 		double []fak = new double[24];
 		try{
@@ -127,7 +130,7 @@ public class readFile {
 		return fak;
 	}
 	
-	//reads TSP instance and saves coordinates in double array/
+	//reads TSP instance and saves coordinates in double array
 	public void readingFile(){
 		try{
 			br= new BufferedReader(new FileReader(file));

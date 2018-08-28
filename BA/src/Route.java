@@ -53,7 +53,7 @@ public class Route {
 		}
 	
 		//Convert Node Ids in City Objects
-		Nodes_as_City=Send_Request.getNodes(Nodes);
+		Nodes_as_City=Send_Request.ConvertAPI(Nodes);
 		
 
 		//Create City objects of type "Interesection" from JSON Array "Intersections" in JSONObject "steps"

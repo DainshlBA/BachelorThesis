@@ -7,7 +7,7 @@ public class All_Cities {
 	static ArrayList<City> destinationCities = new ArrayList<City>();
 	
 	//Saves city we start from
-	static City startCity=Distanzmatrix.startCity;
+	static City startCity=D_Matrix.startCity;
 
 //METHODS:	
 	// Adds a City object of type "City", "Intersection" or "GPS"

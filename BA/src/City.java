@@ -1,5 +1,3 @@
-
-
 //Class that represents one element of an individual/Tour
 // Can be of type "City", "Intersection", "GPS" or "Node"
 //"City" and "GPS" have chronological IDs,

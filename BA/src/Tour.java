@@ -16,8 +16,6 @@ public class Tour {
     double totalduration = 0;
     int rank=0;
     static int highestRank=EA.popSize;
-	double IntersectionValue=0;
-	 double allsymmValue=0;
 //CONSTRUCTOR:
     //Constructs blank tour
     public Tour(){
@@ -25,11 +23,11 @@ public class Tour {
             tour.add(null);
         }
     }
-    //Constructs Tour with City objects of argument ArrayList
+    //Constructs Tour with City objects of ArrayList
     public Tour(ArrayList<City> tour){
         this.tour = tour;
     }
-    
+    //Constructs a copy a tour
     public Tour(Tour t) {
     	for( int tt=0; tt<t.tourSize();tt++) {
     		City cn= new City(t.getCity(tt).getId(), t.getCity(tt).getType(),t.getCity(tt).getPosition());
@@ -129,11 +127,8 @@ public class Tour {
      
     //Calculates the total duration of the tour depending on the status of the algorithm and procoess 
     public double getDuration() {
-//    	System.out.println(this);
     	totalduration=0;
     	//Values just needed for logger results evaluation
-    	IntersectionValue=0;
-    	allsymmValue=0;
 	
     	//Calculation of duration in dynamic environment
     	if(EA.START==true) {
@@ -151,8 +146,6 @@ public class Tour {
 			
 			//Add toDriveto Value from EA to totalduration, first part of calculation
 	    	totalduration =EA.toDrivetoCity+EA.toDrivetoIntersection;
-
-	    	//Check for special cases of hour variable
 	    
 	    	if(sumMilli+totalduration*1000>nexthour) { 
 	    		hour++;
@@ -188,16 +181,15 @@ public class Tour {
 	    	}
 	  
 	    	
-	    	// If situation requires a value of the "Intersection" matrix range
+	    	// If situation requires a Intersection-value of the "Intersection" matrix range 
+	    	//Second part of calculation
 	    	if(EA.OP_Stop==false&&this.getCity(1).getType()=="Intersection") {
 	    		//Get ID for selecting correct value in intersection matrix range
 	    		int a=Integer.parseInt(this.getCity(2).getId());
 	    		//General calculation process
-				//check for hour overlaps and calculate duration by ratios
-				 if(sumMilli+Distanzmatrix.matrix[Distanzmatrix.CreatingnumOfCities][a]*Maths.getFaktor(hour)*1000>nexthour) {
+				 if(sumMilli+D_Matrix.matrix[D_Matrix.CreatingnumOfCities][a]*Maths.getFaktor(hour)*1000>nexthour) {
 						long ttnh=nexthour-sumMilli;
 		    			totalduration+=Maths.round((ttnh/1000),3);
-		    			IntersectionValue+=Maths.round((ttnh/1000),3);
 		    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),0);
 		    			sumMilli=nexthour;
 		    			nexthour+=3600000;	
@@ -208,17 +200,15 @@ public class Tour {
 		    			boolean finish=false;
 		    			do {
 		    				
-		    				long y=(long)(Distanzmatrix.matrix[Distanzmatrix.CreatingnumOfCities][a]*1000)-x;
+		    				long y=(long)(D_Matrix.matrix[D_Matrix.CreatingnumOfCities][a]*1000)-x;
 		    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
 		    					sumMilli+=y*Maths.getFaktor(hour);
 		    					totalduration+=(y/1000)*Maths.getFaktor(hour);
-		    					IntersectionValue+=(y/1000)*Maths.getFaktor(hour);
 		    					finish=true;
 		    				}
 		    				else {
 		    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 0);
 		    					totalduration+=3600;
-		    					IntersectionValue+=3600;
 		    					sumMilli=nexthour;
 		    					nexthour+=3600000;	
 		    	    			hour+=1;
@@ -232,9 +222,8 @@ public class Tour {
 					}
 					else {
 						
-						totalduration+=Distanzmatrix.matrix[Distanzmatrix.CreatingnumOfCities][a]+Maths.getFaktor(hour);	
-						IntersectionValue+=Distanzmatrix.matrix[Distanzmatrix.CreatingnumOfCities][a]*Maths.getFaktor(hour);	
-						sumMilli+=Distanzmatrix.matrix[Distanzmatrix.CreatingnumOfCities][a]*1000*Maths.getFaktor(hour);	
+						totalduration+=D_Matrix.matrix[D_Matrix.CreatingnumOfCities][a]+Maths.getFaktor(hour);	
+						sumMilli+=D_Matrix.matrix[D_Matrix.CreatingnumOfCities][a]*1000*Maths.getFaktor(hour);	
 						
 					}
 	    	}
@@ -247,8 +236,9 @@ public class Tour {
 	    		index=1;
 				}
 	   
-	    	//Calculation hour depending duration of remaining cities and back to city we've started from,
-	    	//  analogue calculation process
+	    	//Calculation duration of remaining cities and back to city we've started from,
+	    	// analogue calculation process
+			//third part of calculation
 				for (int cityIndex=index; cityIndex < tourSize(); cityIndex++) {
 					City fromCity = getCity(cityIndex);
 					City destinationCity;	
@@ -256,16 +246,15 @@ public class Tour {
 						destinationCity = getCity(cityIndex+1);
 					} 
 					else{    	 
-						destinationCity = Distanzmatrix.startCity;
+						destinationCity = D_Matrix.startCity;
 					}
 					int a = Integer.parseInt(fromCity.getId());
 					int b = Integer.parseInt(destinationCity.getId());
 				
-					if(sumMilli+Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour)*1000>nexthour) {
+					if(sumMilli+D_Matrix.matrix[a][b]*Maths.getFaktor(hour)*1000>nexthour) {
 						long ttnh=nexthour-sumMilli;
 						
 		    			totalduration+=Maths.round(ttnh/1000,3);
-		    			allsymmValue+=Maths.round(ttnh/1000,3);
 		    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),0);
 		    			sumMilli=nexthour;
 		    			nexthour+=3600000;	
@@ -277,18 +266,16 @@ public class Tour {
 		    			boolean finish=false;
 		    			do {
 		    				
-		    				long y=(long)(Distanzmatrix.matrix[a][b]*1000)-x;
+		    				long y=(long)(D_Matrix.matrix[a][b]*1000)-x;
 		    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
 		    					sumMilli+=y*Maths.getFaktor(hour);
 		    					totalduration+=(y/1000)*Maths.getFaktor(hour);
-		    					allsymmValue+=(y/1000)*Maths.getFaktor(hour);
 		    					finish=true;
 		    				
 		    				}
 		    				else {
 		    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 0);
 		    					totalduration+=3600;
-		    					allsymmValue+=3600;
 		    					sumMilli=nexthour;
 		    					nexthour+=3600000;	
 		    	    			hour+=1;
@@ -302,9 +289,8 @@ public class Tour {
 						
 					}
 					else {
-						allsymmValue+=Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour);
-						totalduration+=Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour);	
-						sumMilli+=Distanzmatrix.matrix[a][b]*1000*Maths.getFaktor(hour);	
+						totalduration+=D_Matrix.matrix[a][b]*Maths.getFaktor(hour);	
+						sumMilli+=D_Matrix.matrix[a][b]*1000*Maths.getFaktor(hour);	
 					}
 				}
 	    	}
@@ -336,21 +322,15 @@ public class Tour {
    		 			destinationCity = getCity(cityIndex+1);
    		 		}
                 else{    	 
-                    destinationCity = Distanzmatrix.startCity;
+                    destinationCity = D_Matrix.startCity;
                 } 
    		 		int a = Integer.parseInt(fromCity.getId());
    		 		int b = Integer.parseInt(destinationCity.getId());
    		 		
-//   		 		System.out.println("SumMilli:"+new TimeElement(sumMilli));
-//   		 		System.out.println(Maths.getFaktor(hour));
-//   		 	System.out.println("nexthour: "+new TimeElement(nexthour));
-//   		 	System.out.println( hour + " " + nexthour + " "+ sumMilli+ " "+ Distanzmatrix.matrix[a][b]);
-   		 		if(sumMilli+Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour)*1000>nexthour) {
+   		 		if(sumMilli+D_Matrix.matrix[a][b]*Maths.getFaktor(hour)*1000>nexthour) {
    		 			long ttnh=nexthour-sumMilli;
 	    			totalduration+=Maths.round(ttnh/1000,1);
-//	    			System.out.println("laps: "+ totalduration);
 	    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),3);
-//	    			System.out.println("x: "+x);
 	    			sumMilli=nexthour;
 	    			nexthour+=3600000;	
 	    			hour+=1;
@@ -360,19 +340,15 @@ public class Tour {
 	    			boolean finish=false;
 	    			do {
 	    				
-	    				long y=(long)(Distanzmatrix.matrix[a][b]*1000)-x;
+	    				long y=(long)(D_Matrix.matrix[a][b]*1000)-x;
 	    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
 	    					sumMilli+=y*Maths.getFaktor(hour);
-//	    					System.out.println("y: "+y);
 	    					totalduration+=Maths.round((y/1000)*Maths.getFaktor(hour),1);
-//	    					System.out.println("if lap: "+ totalduration);
 	    					finish=true;
 	    				}
 	    				else {
 	    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 3);
-//	    					System.out.println("x: "+x);
 	    					totalduration+=3600;
-//	    					System.out.println("else lap: "+ totalduration);
 	    					sumMilli=nexthour;
 	    					nexthour+=3600000;	
 	    	    			hour+=1;
@@ -384,17 +360,11 @@ public class Tour {
 	    			while(finish==false);   
    		 		}
    		 		else {
-					allsymmValue+=Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour);
-//					System.out.println(Distanzmatrix.matrix[a][b]);
-//					System.out.println(Maths.getFaktor(hour));
-
-					totalduration+=Maths.round(Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour),1);	
-//					System.out.println("no: "+totalduration);
-					sumMilli+=Distanzmatrix.matrix[a][b]*1000*Maths.getFaktor(hour);	
+					totalduration+=Maths.round(D_Matrix.matrix[a][b]*Maths.getFaktor(hour),1);	
+					sumMilli+=D_Matrix.matrix[a][b]*1000*Maths.getFaktor(hour);	
    		 		}
    		 	}
    		 	totalduration= Maths.round(totalduration,1);
-//   		 	System.out.println("DONE");
    		 	return totalduration;  	
     	}
     		else {
@@ -404,11 +374,8 @@ public class Tour {
     }
     
     public double getstaticduration() {
-     	System.out.println(this);
     	totalduration=0;
     	//Values just needed for logger results evaluation
-    	IntersectionValue=0;
-    	allsymmValue=0;
     	if(totalduration==0) {
     		//actual hour
     		int hour= EA.lastEventTime.getHour();
@@ -424,20 +391,14 @@ public class Tour {
    		 			destinationCity = getCity(cityIndex+1);
    		 		}
                 else{    	 
-                    destinationCity = Distanzmatrix.startCity;
+                    destinationCity = D_Matrix.startCity;
                 } 
    		 		int a = Integer.parseInt(fromCity.getId());
    		 		int b = Integer.parseInt(destinationCity.getId());
-//   		 		System.out.println("SumMilli:"+new TimeElement(sumMilli));
-//   		 		System.out.println(Maths.getFaktor(hour));
-//   		 	System.out.println("nexthour: "+new TimeElement(nexthour));
-//   		 	System.out.println( hour + " " + nexthour + " "+ sumMilli+ " "+ Distanzmatrix.matrix[a][b]);
-   		 		if(sumMilli+Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour)*1000>nexthour) {
+   		 		if(sumMilli+D_Matrix.matrix[a][b]*Maths.getFaktor(hour)*1000>nexthour) {
    		 			long ttnh=nexthour-sumMilli;
 	    			totalduration+=Maths.round(ttnh/1000,3);
-//	    			System.out.println("laps: "+ totalduration);
 	    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),0);
-//	    			System.out.println("x: "+x);
 	    			sumMilli=nexthour;
 	    			nexthour+=3600000;	
 	    			hour+=1;
@@ -447,19 +408,15 @@ public class Tour {
 	    			boolean finish=false;
 	    			do {
 	    				
-	    				long y=(long)(Distanzmatrix.matrix[a][b]*1000)-x;
+	    				long y=(long)(D_Matrix.matrix[a][b]*1000)-x;
 	    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
 	    					sumMilli+=y*Maths.getFaktor(hour);
-//	    					System.out.println("y: "+y);
 	    					totalduration+=(y/1000)*Maths.getFaktor(hour);
-//	    					System.out.println("if lap: "+ totalduration);
 	    					finish=true;
 	    				}
 	    				else {
 	    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 0);
-//	    					System.out.println("x: "+x);
 	    					totalduration+=3600;
-//	    					System.out.println("else lap: "+ totalduration);
 	    					sumMilli=nexthour;
 	    					nexthour+=3600000;	
 	    	    			hour+=1;
@@ -471,17 +428,11 @@ public class Tour {
 	    			while(finish==false);   
    		 		}
    		 		else {
-					allsymmValue+=Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour);
-//					System.out.println(Distanzmatrix.matrix[a][b]);
-//					System.out.println(Maths.getFaktor(hour));
-
-					totalduration+=Distanzmatrix.matrix[a][b]*Maths.getFaktor(hour);	
-//					System.out.println("no: "+totalduration);
-					sumMilli+=Distanzmatrix.matrix[a][b]*1000*Maths.getFaktor(hour);	
+					totalduration+=D_Matrix.matrix[a][b]*Maths.getFaktor(hour);	
+					sumMilli+=D_Matrix.matrix[a][b]*1000*Maths.getFaktor(hour);	
    		 		}
    		 	}
    		 	totalduration= Maths.round(totalduration,3);
-//   		 	System.out.println("DONE");
    		 	return totalduration;  	
     	}
     		else {

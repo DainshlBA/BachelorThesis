@@ -38,7 +38,8 @@ public class Maths {
 	}
 	
 	
-	//EAmmaFunction for simulating duration values
+	//Calculate simulation factors for simulation by applying gamma distribution
+	//In case of static initial tour simulation: read factors from text file
 	public static void goGamma(double k, double theta, double shiftDistance) {
 		SimulationsFaktoren= new double[Faktoren.length];
 		if(Run.initialtest==false) {

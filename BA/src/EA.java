@@ -23,18 +23,16 @@ import javax.swing.event.ChangeListener;
 public class EA implements myListener {
 
 //VARIABLES:			
-    //Properties
-	//GUI_Start form;
-	static boolean OP_Stop=false;
-	static boolean lastCityvisited=false;
-	static boolean START=false;
+    
+	//Properties
 	static long dynamicStartinMilli;
 	static boolean testinitial=false;
+	static boolean readMatrix=false;
 	
 	//EA parameters
-    static int numOfCities;
+    static int numberofCities;
 	static int popSize=20;			
-	static int iterations1=250000;
+	static int iterations1=100;
 	static int iterations2=0;
 	static long timeStop=0;
 	static double mutationRate =0.7;
@@ -44,33 +42,26 @@ public class EA implements myListener {
     static int tournamentSize = 3;	
     static double reinsertionRate=0.2;
     
-    
-    
+    //Gamma distribution
     
 	static double c=1;
 	static double theta=0.25;
 	static double shiftDistance=0.75;
+	
+	//Further variables
 	static int blockedCities=1;
-	static int elitismoffset=0;
 	static Population pop;
 	static Population newOffsprings;  
 	static Population initialTourPop;
+	static boolean OP_Stop=false;
+	static boolean lastCityvisited=false;
+	static boolean START=false;
+
 	
-	
-	//Operators
-	static boolean ox2C=true;
-	static boolean ordC=false;
-	static boolean pmxC=false;
-	static boolean cycC=false;
-			
-	static boolean disM=false;
-	static boolean insM=false;
-	static boolean invM=false;
-	static boolean excM=true;
-	static boolean mexM=false;
+	//Selection operators 
 	static boolean RWS=true;
 	static boolean TMS=false;
-	static boolean elitism=true;
+	
 	
 	//API request data
 	ArrayList<City> Nodes;
@@ -91,29 +82,30 @@ public class EA implements myListener {
 	static TimeElement start;
 	private ArrayList<RouteServiceListener> listenerList= new ArrayList<RouteServiceListener>();
 	
-	static boolean changeatInter=false;
-	
+
 	//METHODS:
 	
 	//Method for setting properties
+	//Create city list
+	//Create durationmatrix
 	public void Formalitäten(){
 	   
 		System.out.println("Bitte warten.....");
 		System.out.println();
 		System.out.println();
 		
-		
-		Distanzmatrix.createAll_Cities();
-		
-		numOfCities=Distanzmatrix.CreatingnumOfCities;
-		Distanzmatrix.createDurationMatrix();
+		D_Matrix.createAll_Cities();
+		numberofCities=D_Matrix.CreatingnumOfCities;
+		D_Matrix.createDurationMatrix(readMatrix);
 		Maths.goGamma(c, theta, shiftDistance);
 		System.out.println("Einstellung sind getroffen worden!");
 	}
 	
-	int counter=0;
 	
-	//Methods for evolutionary algorithm
+	
+// EVOLUTIONARY ALGORITHM AND OPERATORS
+	
+	
 	//Evolve population by using recombination, mutation, selection and replacing operators
 	//Initializes first population
 	//If true: Initialize first population and generate individuals
@@ -131,13 +123,12 @@ public class EA implements myListener {
     	    			initialTourPop.saveTour(0, ttt);
     	    			testinitial=true;
     	    			best=pop.getTour(0);
-    	    			System.out.println(initialTourPop.getTour(0));
-    	    		}
+       	    		}
 	    	    	if(testinitial!=true) {
 	    	    	//Create new offspring generation according to generation gap
 	    	    	newOffsprings= new Population((int)(popSize*generationGap), false,false);
 
-	    	    	
+	    	    	// Apply Crossover Operators
 	    	    	  for (int z = 0; z < newOffsprings.populationSize(); z++) {  
 	    	    		  int c_op=(int)(Math.random()*2)+1;
 			    	      switch(c_op) {  
@@ -188,12 +179,11 @@ public class EA implements myListener {
 									Tour parent1 = tournamentSelection(pop);
 									newOffsprings.saveTour(z, parent1); 
 								}
-			    	       }
-			 	      }
-	    	    }
+			    	       	}
+			    	      }
+	    	    	  }
 	    	    	  
-	    	    	
-
+	    	    	// Apply Mutation Operators  
 	    	       for (int i = 0; i < newOffsprings.populationSize(); i++) {
 	    	     	 int m_op=(int)(Math.random()*4)+1;
 		    	       switch(m_op) {
@@ -220,17 +210,14 @@ public class EA implements myListener {
 			    	    	   
 			    	       }
 		    	       	}
-	    	    }
+	    	       	}
 	    	      
 	    	    
 	    	    
 	    	       //Reinsertion with reinsertion rate and generation gap
 	    	       pop.rankPopulation();
 	    	       newOffsprings.rankPopulation();
-    	       
-	    	 
 	    	       int toInsert=(int)(pop.populationSize()*reinsertionRate);
-
 	    	       int inserted=0;
 	    	       for(int a=newOffsprings.populationSize()-1;a>=0;a--) {
 	    	    
@@ -244,13 +231,16 @@ public class EA implements myListener {
 	    	    		  break;
 	    	    	  }
 	    	    	
-	    	       }	    	  
+	    	       }	    	
+	    	       //Evaluate population & Calculate duration
 	    	       pop.rankPopulation();
-	    	    }    		    	    		    	  
+	    	    } 
 	    	    best= pop.getFittest();
 	   		}
 	    }
 	}
+	
+	// Method for choosing correct selection operator
 	public Tour Selection(Population popul){
 		Tour parent;
 		if(TMS==true){
@@ -265,6 +255,7 @@ public class EA implements myListener {
 
 	
     //Recombination operators
+	
 	public static Tour[] CycleC(Tour parent1, Tour parent2) {
 		
 		Tour child1=new Tour();
@@ -273,24 +264,18 @@ public class EA implements myListener {
 	 	City city2;
 	 	Tour[] kids= new Tour[2];											
 	 	int cyclecounter=0;													
-	 	//Position within a cycle
 	 	int position=blockedCities;		
-	 
-	 	//Start of a cycle
-	 	int start=blockedCities;														
-	 	ArrayList<City> notvisited= new ArrayList<City>();					
-	    //Set blocked cities in child
+	
+	 	int start=blockedCities;													
+	 	ArrayList<City> notvisited= new ArrayList<City>();				
 	 	for(int bl=0;bl<blockedCities;bl++) {
            	child1.setCity(bl, parent1.getCity(bl));
            	child2.setCity(bl,parent2.getCity(bl));
         }
-	 	//add all cities of parent1 to list 
 	 	for(int a=blockedCities; a<parent1.tourSize();a++) {		 					
 			 City ci= parent1.getCity(a);
 			 notvisited.add(ci);											
-		}
-	 	//Do cycles while the list is not empty and 
-	 	//distinguish in operation between odd and straight  numbers of cycle rounds	
+		}	
 	 	while(notvisited.isEmpty()==false) { 								
 	 		if(cyclecounter%2==1) {											
 	 			for(int a=blockedCities; a<parent1.tourSize();a++) {		
@@ -383,7 +368,6 @@ public class EA implements myListener {
     	Tour child2=new Tour();
     	Tour[] kids= new Tour[2];
     	
-    	//Get start and end position of substrings
     	int number1 = (int) (Math.random() *( parent1.tourSize()-blockedCities));	
     	int number2 = (int) (Math.random() * ( parent1.tourSize()-blockedCities));	
     	while(number1==number2)	{											
@@ -394,14 +378,12 @@ public class EA implements myListener {
     	int startPos= Math.min(number1, number2)+blockedCities;						
     	int endPos= Math.max(number1, number2)+blockedCities;
     	
-    	//Set blocked cities in child
     	for(int bl=0;bl<blockedCities;bl++) {
            	child1.setCity(bl, parent1.getCity(bl));
            	child2.setCity(bl,parent2.getCity(bl));
            	
         }
     
-    	//Copy substring of parent 1 in child 2 and parent2 in child1						
     	for(int j=blockedCities;j<parent1.tourSize();j++) {   			
     		if(j >= startPos && j <= endPos) {							
     			City cityP1=parent1.getCity(j);							
@@ -412,9 +394,8 @@ public class EA implements myListener {
     		
     			}
     	}   
-    	//Fill up child1 with remaining cities in parent1, analog with child 2 and parent2
-    	for(int k=blockedCities;k<parent1.tourSize();k++) {    
     	
+    	for(int k=blockedCities;k<parent1.tourSize();k++) {    
     		if (!child1.containsCity(parent1.getCity(k))) {   		
     			for (int ii = blockedCities; ii < child1.tourSize(); ii++)  {       
                     if (child1.getCity(ii) == null)	{		 			                
@@ -436,159 +417,34 @@ public class EA implements myListener {
     		}
     
     	}
-  
     	kids[0]=child1;											
     	kids[1]=child2;
     	return kids;
     }
     
-    public static Tour[] PMX (Tour parent1, Tour parent2) { //Muss noch gemacht werden	
-   //	System.out.println("start PMX");
-    //	System.out.println("p1 "+ parent1);
-    	//System.out.println("p2 "+ parent2);
-    	int number1 =(int) (Math.random() *(parent1.tourSize()-blockedCities));
-		int number2 = (int) (Math.random() *(parent1.tourSize()-blockedCities));
-		Tour kids[]=new Tour[2];
-		Tour child1=new Tour();
-		Tour child2= new Tour();
-		
-		while (number1 == number2) {
-			number1 =(int) (Math.random() *(parent1.tourSize()-blockedCities));
-			number2= (int) (Math.random() *(parent1.tourSize()-blockedCities));
-		}
-		int cut1= Math.min(number1, number2)+blockedCities;					
-    	int cut2= Math.max(number1, number2)+blockedCities;
-    ///	System.out.println("Cut1:"+cut1);System.out.println("Cut2:"+cut2);
-		for(int bl=0;bl<blockedCities;bl++) {
-	       	child1.setCity(bl, parent1.getCity(bl));
-	       	child2.setCity(bl,parent2.getCity(bl));
-	    }
-	//	System.out.println("child1 "+ child1);
-    //	System.out.println("child2 "+ child2);
-		for(int j=cut1;j<=cut2;j++) {	
-			City c1= parent1.getCity(j);
-			City c2= parent2.getCity(j);
-			child1.setCity(j, c1);
-			child2.setCity(j, c2);
-		} 	
-	//	System.out.println("child1 "+ child1);
-    	//System.out.println("child2 "+ child2);
-		for(int jj=cut1;jj<=cut2;jj++) {
-			City inter1=parent1.getCity(jj);
-			City inter2=parent2.getCity(jj);
-			int pos1=jj;
-			int pos2=jj;
-			if(child1.containsCity(inter2)==false) {			
-				
-				do {
-				//	System.out.println("city sould be mapped "+ inter2);
-					inter2=parent1.getCity(pos2);
-//					System.out.println("Map down in P1 to: "+inter2);
-					pos2=parent2.positionofCity(inter2);
-//					System.out.println("Position in P2 of mapped city: "+pos2);
-					inter2=parent2.getCity(pos2);
-//					System.out.println("Mapped CIty in P2: "+inter2);
-//					System.out.println(inter2);
-//					System.err.println(child1);
-//					
-				}
-				while(child2.containsCity(inter2)==true);
-//				System.out.println("WAs wir kopeiren möchten: "+parent2.getCity(jj));
-				child1.setCity(pos2, parent2.getCity(jj));
-//				System.out.println("child1: "+child1);
-			}
-			if(child2.containsCity(inter1)==false) {	
-				do {
-					inter1=parent2.getCity(pos1);
-					pos1=parent1.positionofCity(inter1);
-					inter1=parent1.getCity(pos1);
-				}
-				while(child1.containsCity(inter1)==true);
-				child2.setCity(pos1, parent1.getCity(jj));
-			}
-		}
-		
-		for(int jjj=blockedCities;jjj<parent1.tourSize();jjj++) {
-			City c1= parent1.getCity(jjj);
-			City c2=parent2.getCity(jjj);
-			
-			if(child1.containsCity(c2)==false) {
-				child1.setCity(jjj, c2);
-			}
-			if(child2.containsCity(c1)==false) {
-				child2.setCity(jjj, c1);
-			}
-		}
-		  kids[0]=child1;
-		  kids[1]=child2;  
-		  return kids;
-    }
-    public static Tour OrderCrossover(Tour parent1, Tour parent2) {
-    	   
-        Tour child = new Tour();
-        
-        //Get start and end position of substring
-        int number1 = (int) (Math.random() * (parent1.tourSize()-blockedCities));		
-        int number2 = (int) (Math.random() * (parent1.tourSize()-blockedCities));		
-       
-        while(number1==number2)	{										
-    		number1 = (int) (Math.random() * (parent1.tourSize()-blockedCities));		
-    		number2 = (int) (Math.random() * (parent1.tourSize()-blockedCities)); 
-    		continue;
-    	}
-        int startPos= Math.min(number1, number2)+blockedCities;						
-        int endPos= Math.max(number1, number2)+blockedCities;        				     
-        
-        //Set locked cities in child
-        for(int bl=0;bl<blockedCities;bl++) {
-        	child.setCity(bl, parent1.getCity(bl));
-        }
-        
-        //copy subtring from parent1 to child
-        for (int i =blockedCities; i < parent1.tourSize(); i++) {	
-            if (i >= startPos && i <= endPos) {						
-                child.setCity(i, parent1.getCity(i));            
-            } 
-        }
-        //Fill up with remaining cities of P2
-        for (int i = blockedCities; i < parent2.tourSize(); i++) {
-            if (!child.containsCity(parent2.getCity(i))) {			
-                for (int ii = blockedCities; ii < child.tourSize(); ii++) {			
-                    if (child.getCity(ii) == null) {					
-                        child.setCity(ii, parent2.getCity(i));			
-                        break;
-                    }
-                }
-            }
-        }
-        return child;
-    }
-
-
-
-	//Swap two randomly chosen cities
+    
 	//Mutation operators
+    
     public static void ExchangeMutation(Tour tour) {   	
-	Tour child = new Tour();  
-    	
+    	Tour child = new Tour();  
+   
     	for(int bl=0;bl<blockedCities;bl++) {
     		child.setCity(bl, tour.getCity(bl));
     	}	
-	    	int tourPos1 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities; 			
-	        int tourPos2 = (int) ((tour.tourSize() -blockedCities)* Math.random())+blockedCities;
-	        while(tourPos1==tourPos2){					
-	             tourPos1 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities;			
-	             tourPos2 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities;    
-	        }       
-	        City city1 = tour.getCity(tourPos1);								
-	        City city2 = tour.getCity(tourPos2);
-	        child.setCity(tourPos2, city1);
-	        child.setCity(tourPos1, city2); 
-	        for(int j=blockedCities;j<tour.tourSize();j++) {   	
-	    		
-	    		if (!child.containsCity(tour.getCity(j))) {						
-	                for (int ii = 0; ii < child.tourSize(); ii++) {
-	                    if (child.getCity(ii) == null) {						
+	    int tourPos1 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities; 			
+	    int tourPos2 = (int) ((tour.tourSize() -blockedCities)* Math.random())+blockedCities;
+	    while(tourPos1==tourPos2){					
+	         tourPos1 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities;			
+	         tourPos2 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities;    
+	    }       
+	    City city1 = tour.getCity(tourPos1);								
+	    City city2 = tour.getCity(tourPos2);
+	    child.setCity(tourPos2, city1);
+	    child.setCity(tourPos1, city2); 
+	    for(int j=blockedCities;j<tour.tourSize();j++) {   	
+	   		if (!child.containsCity(tour.getCity(j))) {						
+	              for (int ii = 0; ii < child.tourSize(); ii++) {
+	                   if (child.getCity(ii) == null) {						
 	                    	City city3 = tour.getCity(j);
 	                        child.setCity(ii, city3);							
 	                        break;
@@ -600,7 +456,7 @@ public class EA implements myListener {
     	
     }
     
-    //select and copy a substring of tour and paste it mirrored
+
     private static void InversionMutation(Tour tour) {  
     
     		Tour child= new Tour();
@@ -643,7 +499,6 @@ public class EA implements myListener {
     	
     }
     
-    //Cut a substring and paste it at random position
     private static void DisplacementMutation(Tour tour) {    
     
     	
@@ -694,7 +549,6 @@ public class EA implements myListener {
     	
     }
     
-    //Cut a random city and paste it at random position
     private static void InsertionMutation(Tour tour)    {  	  	
     	Tour child = new Tour();  
     	
@@ -729,8 +583,8 @@ public class EA implements myListener {
 }
 
     
-    //Choose number of random tours (=tournament size) and select the fittest of them
     //Selection operators
+    
     private static Tour tournamentSelection(Population pop) {				    
         Population tournament = new Population(tournamentSize, false,false);		 
         for (int i = 0; i < tournamentSize; i++) { 							
@@ -741,7 +595,6 @@ public class EA implements myListener {
         return fittest;
     }
 	
-    //Roulettewheel selection where the fitness of a tour equals its likelyhood to be chosen
     private static Tour RWS(Population pop)								
     {	Tour chosen=new Tour();
     	Tour inter=new Tour();
@@ -763,18 +616,16 @@ public class EA implements myListener {
     	return chosen;
     }
     
-    //Starts the simulation
-    //First Route Request, tour and All_Cities Adaption
-    //sets algorithm to run=true
-    //Replacing operators
+//EVENT-HANDLING
     
+    //Starts the simulation
+    //First Route Request, Tour repair, to-driveto-calculation
+    //Sets simulation process to run=true
     //Start dynamic algorithm and process
     public void start() throws Exception {
     	START=true;
     	Route route= new Route();
 		lastEventTime= Run.start; 
-		
-	
 		blockedCities=2;
 		route.WayFromTo(best);
 		durations=route.Duration;
@@ -791,21 +642,19 @@ public class EA implements myListener {
 		double lon_ratio_start=(Nodes.get(1).getLongitude()-Intersections.get(0).getLongitude())/(Nodes.get(1).getLongitude()-Nodes.get(0).getLongitude());
 		double avg_ratio_start= (lat_ratio_start+lon_ratio_start)/2; 
 		
-		if(avg_ratio_start<0) { //NOCHMAL DOUBLE CHEKCEN
+		if(avg_ratio_start<0) {
 			avg_ratio_start=avg_ratio_start*(-1);
 		}
 		durations[0]=durations[0]*avg_ratio_start;
 		
-	
-	
 		All_Cities.getCity(0).setCoordinates(Intersections.get(0).getLongitude(), Intersections.get(0).getLatitude());
-		Distanzmatrix.startCity.setCoordinates(Intersections.get(0).getLongitude(), Intersections.get(0).getLatitude());
+		D_Matrix.startCity.setCoordinates(Intersections.get(0).getLongitude(), Intersections.get(0).getLatitude());
 		Nodes.set(0, Intersections.get(0)); 
 		
 		double lat_ratio_end=(Nodes.get(Nodes.size()-1).getLatitude()-Intersections.get(Intersections.size()-1).getLatitude())/(Nodes.get(Nodes.size()-1).getLatitude()-Nodes.get(Nodes.size()-2).getLatitude());	
 		double lon_ratio_end=(Nodes.get(Nodes.size()-1).getLongitude()-Intersections.get(Intersections.size()-1).getLongitude())/(Nodes.get(Nodes.size()-1).getLongitude()-Nodes.get(Nodes.size()-2).getLongitude());
 		double avg_ratio_end= (lat_ratio_end+lon_ratio_end)/2;
-		if(avg_ratio_end<0) {//HIER STECKT DER FEHLER
+		if(avg_ratio_end<0) {
 			avg_ratio_end=avg_ratio_end*(-1);
 		}
 		durations[durations.length-1]=durations[durations.length-1]*avg_ratio_end;
@@ -816,18 +665,13 @@ public class EA implements myListener {
 		}
 		All_Cities.getCity(pos2).setCoordinates(Intersections.get(Intersections.size()-1).getLongitude(), Intersections.get(Intersections.size()-1).getLatitude());
 		Nodes.set(Nodes.size()-1, Intersections.get(Intersections.size()-1));
-		for(int a =0; a<durations.length;a++) {
-			
-			System.out.print(" "+durations[a]);
-		}
 	
 		//Inform simulator
 		RouteServiceEvent event= new RouteServiceEvent(this, Nodes,Intersections, durations,best,lastEventTime);
 		fireEvent(event);
 		
 		
-		//Adapt all tours in actual population and fittest tour "best"
-	
+		//Repair all tours in actual population and fittest tour "best"
 		for ( int t =0; t<pop.populationSize();t++) {
 			if(Intersections.get(1).getType()=="Intersection"){
 				pop.getTour(t).addatPosition(1,Intersections.get(1));
@@ -838,25 +682,18 @@ public class EA implements myListener {
 				pop.getTour(t).addatPosition(1, best.getCity(2));
 			}
 		}
-
-		/*if(Intersections.get(1).getType()=="Intersection"){
-			All_Cities.addCity(Intersections.get(1));
-		}*/
-
-		/*best.deleteCity(0);
-		if(Intersections.get(1).getType()=="Intersection") {
-			best.addatPosition(1, Intersections.get(1));
-		}*/
+		
 		//If the next location will be an intersection, add to All_Cities
 		if(Intersections.get(1).getType()=="Intersection"){
 			All_Cities.addCity(Intersections.get(1));
-			Distanzmatrix.updateAllMatrix();
+			D_Matrix.updateAllMatrix();
 		}
 		
 		//If there is no intersection, calculate duration to next city
 		if(Intersections.get(1).getType()=="City") {  
 			toDriveto("City",0,Nodes.size()-1,1);
 		}
+		
 		//If there is an intersection, calculate duration to next intersection
 		else {
 			int PosinNode=0;
@@ -868,35 +705,23 @@ public class EA implements myListener {
 			}
 			toDriveto("Intersection",0,PosinNode,1);
 		}
+		
 		//Save actual position and best tour for comparison reasons at the next event
 		lastLocation=All_Cities.getCity(0);
 		lastbest=new Tour(best);
 		
 		//Start dynamic algorithm and simulation
-		
-		/*for(int xx=0; xx<Distanzmatrix.matrix.length;xx++) {
-			for(int yy=0; yy<Distanzmatrix.matrix.length;yy++) {
-				System.out.print(Distanzmatrix.matrix[xx][yy]+ " ");
-			}
-			System.out.println();
-		}*/
-		
 		Run.runs=true;
 		start= new TimeElement();
 		dynamicStartinMilli=System.currentTimeMillis();
-		System.out.println("Best duration: "+best.getDuration()+" tdtN: "+toDrivetoNode+" tdtI: "+toDrivetoIntersection+" tdtC: "+ toDrivetoCity +"Int-Val: "+best.IntersectionValue+" symmVal: "+ best.allsymmValue +"   Best: "+best.toString());
-
-//		log.writeInfo("POPULATION AFTER START");
-//		System.out.println();
-//		for(int i=0;i<pop.populationSize();i++) {
-//			log.writeInfo(pop.getTour(i).toString());
-//			log.writeInfo("Total: "+pop.getTour(i).getDuration()+" IntersectionValue "+pop.getTour(i).IntersectionValue+" SymmValue: "+pop.getTour(i).allsymmValue);
-//
-//		}
-		
+		System.out.println();
+		System.out.println("Start dynamic simulation");
+		System.out.println();
+		System.out.println("At Start: Best duration: "+best.getDuration()+" Best: "+best.toString());	
     }
    
   
+    
     //Event-handling method for arriving at a "City"
     // Do route request, adapt data, inform simulator, adapt tours and All_Cities
     //do matrix update, do toDriveto calculation
@@ -904,8 +729,6 @@ public class EA implements myListener {
     @Override
 	public void atCity(AtEvent e){ 
     	
-    	counter=0;
-	    //reset toDriveto values
     	toDrivetoNode=0;
 		toDrivetoIntersection=0;
 		toDrivetoCity=0;
@@ -934,7 +757,7 @@ public class EA implements myListener {
 				//adding best(0) just for referencing purpose in Wayfromto
 				abc.add(best.getCity(0));			
 				abc.add(best.getCity(1));
-				abc.add(Distanzmatrix.startCity);
+				abc.add(D_Matrix.startCity);
 				lastRequest= new Tour (abc);
 				
 				try {
@@ -955,24 +778,7 @@ public class EA implements myListener {
 			Nodes=route.Nodes_as_City;
 			Intersections=route.intersections;
 			
-//			String dur=" New Durations:";
-//			for(int a=0; a<durations.length;a++)
-//			{
-//				dur=" "+durations[a];
-//			}
-//			log.writeInfo(dur+"\n");
-//			String nod=" New Nodes:";
-//			for(int a=0; a<Nodes.size();a++)
-//			{
-//				nod=" "+Nodes.get(a).toString();
-//			}
-//			log.writeInfo(nod+"\n");
-//			String in=" New Intersections:";
-//			for(int a=0; a<Intersections.size();a++)
-//			{
-//				in=" "+Intersections.get(a).toString();
-//			}
-//			log.writeInfo(in+"\n");
+			
 			//Adaped first and last duration value with duration approximation from first intersection to second node
 			//and penultimate node to last intersection 
 			//replace first and last node with first and last city object in "Intersection"
@@ -992,17 +798,14 @@ public class EA implements myListener {
 			}
 			Nodes.set(0, Intersections.get(0)); 
 			Nodes.set(Nodes.size()-1, Intersections.get(Intersections.size()-1));
-			System.out.println();
-			for(int a =0; a<durations.length;a++) {
-				
-				System.out.print(" "+durations[a]);
-			}
+
+
 			//Inform simulator
 			RouteServiceEvent event= new RouteServiceEvent(this, Nodes,Intersections, durations,best,lastEventTime);
 			fireEvent(event);		
-			//Adapt all tours in actual population and fittest tour "best"
-		
-			//Best Tour will be adapted at last
+			
+			
+			//Repair all tours in actual population
 			for ( int t =0; t<pop.populationSize();t++) {
 				//Delete last location
 				pop.getTour(t).deleteCity(0);
@@ -1027,7 +830,7 @@ public class EA implements myListener {
 				All_Cities.addCity(Intersections.get(1));
 				if(e.status==null||All_Cities.checkForCities()>2) {
 					try {
-						Distanzmatrix.updateAllMatrix();
+						D_Matrix.updateAllMatrix();
 					} 
 					catch (Exception e1) {
 						e1.printStackTrace();
@@ -1037,11 +840,12 @@ public class EA implements myListener {
 	
 			// toDriveto values calculation
 			
-			//Case 3,4 and extra case   ??? NOCHMAL ÜBERPRÜFEN
+			//If there are no intersections left on the route or tour cannot change anymore
 			if(OP_Stop==true||Intersections.get(1).getType()=="City") { 		
 				toDriveto("City",0,Nodes.size()-1,1);
 			}	
-			//Case 1,2
+			
+			//If there are intersections left on the route
 			else { 
 				int PosinNode=0;
 				for(int a=0; a<Nodes.size();a++) {
@@ -1057,15 +861,14 @@ public class EA implements myListener {
 			for ( int t =0; t<pop.populationSize();t++) {
 				//Delete last location
 				pop.getTour(t).deleteCity(0);
-				pop.getTour(t).addatPosition(0, Distanzmatrix.startCity);
+				pop.getTour(t).addatPosition(0, D_Matrix.startCity);
 				}
 			All_Cities.deleteCity(lastLocation);
-			All_Cities.addCity(Distanzmatrix.startCity);
+			All_Cities.addCity(D_Matrix.startCity);
 			}
 			
 		
 		//Save actual position and best tour for comparison reasons at the next event
-		
 		for(int check=0; check <All_Cities.numberOfCities();check++) {
 			if(e.location.getId()==All_Cities.getCity(check).getId()){
 				lastLocation=All_Cities.getCity(check);
@@ -1073,13 +876,13 @@ public class EA implements myListener {
 			}
 		} 
 		lastbest=new Tour(best);
-		System.out.println("Best duration: "+best.getDuration()+" tdtN: "+toDrivetoNode+" tdtI: "+toDrivetoIntersection+" tdtC: "+ toDrivetoCity +"Int-Val: "+best.IntersectionValue+" symmVal: "+ best.allsymmValue +"   Best: "+best.toString());
+		System.out.println("Best duration: "+best.getDuration()+" Best: "+best.toString());
 		System.out.println();
-//		for(int a=0;a<EA.pop.populationSize();a++) {
-//			System.out.println(EA.pop.getTour(a).getDuration()+"   "+EA.pop.getTour(a));
-//		}
-		Run.eventcheck=true;
     }
+    
+    
+    
+    
     //Event-handling method for arriving at a "City"
     //Distinguish change or no change in solution since last intersection/city
     //If there is a change: Do route request, adapt data, inform simulator,
@@ -1088,7 +891,6 @@ public class EA implements myListener {
 	@Override
 	public void atIntersection(AtEvent e) { 
 		
-		counter=0;
 		EventCounter++;
 		toDrivetoIntersection=0;
 		toDrivetoCity=0;
@@ -1096,12 +898,10 @@ public class EA implements myListener {
 		lastEvent=e;
 		lastEventTime= new TimeElement(e.getEventTime());	
 		System.out.println("Arrived at Intersection: "+String.valueOf(e.location.getId()));
-	
-		
 		
 		//if there is a change in solution since the last event location
-		if(All_Cities.checkForCities()>1 && !(lastbest.getCity(2).getId().equals(best.getCity(2).getId()))) {  //EQUAL
-			changeatInter=true;
+		if(All_Cities.checkForCities()>1 && !(lastbest.getCity(2).getId().equals(best.getCity(2).getId()))) { 
+		
 			Route route= new Route();
 			try {
 				route.WayFromTo(best);
@@ -1168,18 +968,19 @@ public class EA implements myListener {
 			if(best.getCity(1).getType()=="Intersection"){
 				All_Cities.addCity(Intersections.get(1));
 				try {
-					Distanzmatrix.updateAllMatrix();
+					D_Matrix.updateAllMatrix();
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 				
 			}
 			// toDriveto values calculation
-			//case 2,3,4
+			
+			//If there are no intersections left on the route or tour cannot change anymore
 			if(Intersections.get(1).getType()=="City") { 
 				toDriveto("City",0,Nodes.size()-1,1); 
 			}
-			//case: 1
+			//If there are intersections left on the route
 			else {
 				int PosinNode=0;
 				for(int a=0; a<Nodes.size();a++) {
@@ -1192,12 +993,14 @@ public class EA implements myListener {
 			}
 
 		}
+		
+		
 		//No channge in best solution since last intersection/city
 		else{			
-			//Stopp evolve Population because there is no other solution possible anymore
+			
+			//Stop evolve Population because there is no other solution possible anymore
 			if(e.status=="Operatoren-Stop") {
 				OP_Stop=true;
-				System.out.println("OP Stop//");
 			}
 			//adapt all tours of population
 			int PosinInter=-1;
@@ -1242,9 +1045,9 @@ public class EA implements myListener {
 			//Insert next "intersection" if available and do a matrix update for next intersection
 			if(Intersections.get(PosinInter+1).getType()=="Intersection"){
 				All_Cities.addCity(Intersections.get(PosinInter+1));
-				if(All_Cities.checkForCities()>=2 &&e.location!=Intersections.get(Intersections.size()-2)) {		//Nur Update wenn All_cities größer gleich 2 und nicht vorletzter Node (==echter letzter Node)
+				if(All_Cities.checkForCities()>=2 &&e.location!=Intersections.get(Intersections.size()-2)) {		
 					try {
-						Distanzmatrix.updateAllMatrix();
+						D_Matrix.updateAllMatrix();
 						
 					} catch (Exception e1) {
 						e1.printStackTrace();
@@ -1254,8 +1057,9 @@ public class EA implements myListener {
 		
 	
 			//toDriveto calculation
-			//case 2,3,4
-			if(All_Cities.checkForCities()<2||Intersections.get(PosinInter+1).getType()=="City") {  //FALL 2 -> Wenn letzte echte Intersection ereicht ist
+			
+			//If there are no intersections left on the route or tour cannot change anymore
+			if(All_Cities.checkForCities()<2||Intersections.get(PosinInter+1).getType()=="City") { 
 				int PosinNode=0;
 				for(int a=0; a<Nodes.size();a++) {
 					if(Nodes.get(a).getId()==e.location.getId()) {
@@ -1266,7 +1070,7 @@ public class EA implements myListener {
 					toDriveto("City",PosinNode,Nodes.size()-1,1);
 				
 			}
-			//case: 1
+			//If there are intersections left on the route
 			else {
 				int PosinNode1=0;
 				for(int a=0; a<Nodes.size();a++) {
@@ -1286,13 +1090,15 @@ public class EA implements myListener {
 					
 				}
 			}		
-		lastbest=new Tour (best);//AUFPASSEN
+		lastbest=new Tour (best);
 		lastLocation=e.location;
-		System.out.println("Best duration: "+best.getDuration()+" tdtN: "+toDrivetoNode+" tdtI: "+toDrivetoIntersection+" tdtC: "+ toDrivetoCity +"Int-Val: "+best.IntersectionValue+" symmVal: "+ best.allsymmValue +"   Best: "+best.toString());
+		System.out.println("Best duration: "+best.getDuration()+" Best: "+best.toString());
 		System.out.println();
-		Run.eventcheck=true;
 	
 	}
+	
+	
+	
 	//Event-handling method for GPS events
 	//Localizes position and allocates the 2 nodes we are in between
 	//adapts tours in population and All_Cities
@@ -1328,9 +1134,8 @@ public class EA implements myListener {
 			}
 			GPSinNode++;  
 		}
-		System.out.println("GPS in Node: "+GPSinNode);
+		
 		//Adapt tours, delete last location and add actual GPS position
-	
 		for ( int t =0; t<pop.populationSize();t++) {
 			pop.getTour(t).deleteCity(0);
 			pop.getTour(t).addatPosition(0,e.location);
@@ -1384,12 +1189,8 @@ public class EA implements myListener {
 		}
 		
 		lastLocation=e.location;
-		System.out.println("Best duration: "+best.getDuration()+" tdtN: "+toDrivetoNode+" tdtI: "+toDrivetoIntersection+" tdtC: "+ toDrivetoCity +"Int-Val: "+best.IntersectionValue+" symmVal: "+ best.allsymmValue +"   Best: "+best.toString());
+		System.out.println("Best duration: "+best.getDuration()+" Best: "+best.toString());
 		System.out.println();
-		Run.eventcheck=true;
-//		for(int a=0;a<EA.pop.populationSize();a++) {
-//			System.out.println(EA.pop.getTour(a).getDuration()+"   "+EA.pop.getTour(a));
-//		}
 
 	}
 	
@@ -1467,7 +1268,7 @@ public class EA implements myListener {
 	    	toDrivetoCity= Maths.round(toDrivetoCity, 2);
     	}
 	
-    	//Analouge procedure
+    	//Analog procedure
     	else if(Location=="Intersection") {
     		//Get actual hour, time in Millis at next full hour, Time in Millis right know for summation and add toDrivetoNode value
     		int hour= lastEventTime.getHour();
@@ -1533,7 +1334,7 @@ public class EA implements myListener {
 	    	}
 	    	toDrivetoIntersection= Maths.round(toDrivetoIntersection, 2);
     	}
-    	//Analouge procedure
+    	//Analog procedure
 
      	else if(Location=="Node") {
      		int hour= lastEventTime.getHour();
@@ -1595,6 +1396,8 @@ public class EA implements myListener {
 	{
 		listenerList.get(0).EAdidRequest(e);
 	}
+	
+	//Further supporting methods
     public static boolean containsCity(ArrayList<City> list,City city){
         boolean contains=false;
       	for( int c=0;c<list.size();c++) {
@@ -1621,414 +1424,3 @@ public class EA implements myListener {
 
 }
 
-
-/*
-public void gui_start() {
-	
-	Thread t = new Thread()
-	{
-	  @Override public void run()
-	  {
-	    try
-	    {
-	    	form= new GUI_Start(); ;
-	    }
-	    catch ( ThreadDeath td )
-	    {
-	      System.out.println( "Das Leben ist nicht totzukriegen." );
-	      throw td;
-	    }
-	  }
-	};
-	t.start();
-	try { Thread.sleep( 8000 ); } catch ( Exception e ) { }
-	t.stop();
-}
-
-class GUI_Start extends JFrame {
-	/**
-	 * 
-	 /*
-	private static final long serialVersionUID = 1L;
-	JRadioButton Jox2C;
-	JRadioButton JordC;
-	JRadioButton JcycC;
-	JRadioButton JpmxC;
-	JRadioButton JinsM;
-	JRadioButton JinvM;
-	JRadioButton JdisM;
-	JRadioButton JexcM;
-	JRadioButton JmexM;
-	JButton close;
-	JSlider city;
-	JSlider iteration;
-	JSlider population;
-	JRadioButton FileJa;
-	JRadioButton FileNo;
-	JRadioButton EliJa;
-	JRadioButton EliNo;
-	JLabel CrossText;
-	JLabel MutText;
-	JLabel vonFileText;
-	JLabel numCityText;
-	JLabel iterText;
-	JLabel popText;
-	JLabel ElitismText;
-
-	
-
-	class cityListener implements ChangeListener{
-
-
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			numOfCities=city.getValue();
-			
-			
-		}
-		
-	}
-	class iterListener implements ChangeListener{
-
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			iterations1/=iteration.getValue();		
-		}	
-	}
-	class popListener implements ChangeListener{
-
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			popSize=population.getValue();
-			
-		}
-		
-	}
-	class eliListener implements ActionListener{
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if(e.getSource()==EliJa){
-				k=1;
-			}
-			if(e.getSource()==EliNo){
-				k=2;
-			}
-		}
-		
-	}
-
-
-	class closeListener implements ActionListener{
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			
-			setVisible(false);
-			
-		}
-		
-	}
-
-	class MutListener implements ActionListener{
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if(e.getSource()==JinsM) {
-				j=2;
-			}
-			if(e.getSource()==JinvM) {
-				j=3;
-			}
-			if(e.getSource()==JdisM) {
-				j=1;
-			}
-			if(e.getSource()==JexcM) {
-				j=4;
-			}
-			if(e.getSource()==JmexM) {
-				j=5;
-				
-			}
-		}
-		
-	}
-	class CroListener implements ActionListener{
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if(e.getSource()==Jox2C) {
-				i=1;
-			}
-			if(e.getSource()==JordC) {
-				i=2;
-			}
-			if(e.getSource()==JcycC) {
-				i=3;
-			}
-			if(e.getSource()==JpmxC) {
-				i=4;
-				
-			}
-		
-		}
-		
-	}
-
-
-	public GUI_Start() {
-		super("Bitte treffen Sie die Einstellungen");
-		setLayout(null);
-		
-		getContentPane().setBackground(Color.lightGray);
-		setSize(1000,750);
-		setVisible(true);
-		CrossText= new JLabel("Bitte wählen Sie den Crossover-Operator");
-		CrossText.setBounds(0,0, 500, 20);
-		Jox2C= new JRadioButton("Ox2 Crossover");
-		Jox2C.setBounds(0,20,200,50);
-		Jox2C.setBackground(Color.lightGray);
-		Jox2C.addActionListener(new CroListener());
-		JordC= new JRadioButton("Order Crossover");
-		JordC.addActionListener(new CroListener());
-		JordC.setBounds(250,20,200,50);
-		JordC.setSelected(true);
-		JordC.setBackground(Color.lightGray);
-		
-		JcycC= new JRadioButton("Cycle Crossover");
-		JcycC.addActionListener(new CroListener());
-		JcycC.setBounds(500,20,200,50);
-		JcycC.setBackground(Color.lightGray);
-
-		JpmxC= new JRadioButton("PMX Crossover");
-		JpmxC.addActionListener(new CroListener());
-		JpmxC.setBounds(750,20,200,50);
-		JpmxC.setBackground(Color.lightGray);
-		MutText= new JLabel("Bitte wählen sie den Mutations-Operator");
-		MutText.setBounds(0,90,500,20);
-		JinsM= new JRadioButton("Insertion Mutation");
-		JinsM.addActionListener(new MutListener());
-		JinsM.setBackground(Color.lightGray);
-		JinsM.setBounds(0,110,200,50);
-		JinsM.setSelected(true);
-		JinvM= new JRadioButton("Inversion Mutation");
-		JinvM.addActionListener(new MutListener());
-		JinvM.setBackground(Color.lightGray);
-		JinvM.setBounds(200,110,200,50);
-
-		JdisM= new JRadioButton("Displacement Mutation");
-		JdisM.addActionListener(new MutListener());
-		JdisM.setBackground(Color.lightGray);
-		JdisM.setBounds(400,110,200,50);
-
-		JexcM= new JRadioButton("Exchange Mutation");
-		JexcM.addActionListener(new MutListener());
-		JexcM.setBackground(Color.lightGray);
-		JexcM.setBounds(600,110,200,50);
-
-		JmexM= new JRadioButton("Mult. Exchange Mutation");
-		JmexM.addActionListener(new MutListener());
-		JmexM.setBackground(Color.lightGray);
-		JmexM.setBounds(800,110,200,50);
-		ElitismText= new JLabel("Soll Elitism aktiviert werden?");
-		ElitismText.setBounds(0,170,500,20);
-		EliJa= new JRadioButton("Ja");
-		EliJa.setBackground(Color.lightGray);
-		EliJa.setBounds(0, 190, 200,50);
-		EliJa.setSelected(true);
-		EliJa.addActionListener(new eliListener());
-		EliNo= new JRadioButton("Nein");
-		EliNo.setBackground(Color.lightGray);
-		EliNo.setBounds(200, 180, 200, 50);
-		EliNo.addActionListener(new eliListener());
-		
-	
-		iterText= new JLabel("Wieviel iterations sollen durchgeführt werden?");
-		iterText.setBounds(0, 410, 1000, 20);
-		 int iterMayor=1000;
-		 int iterMinor=100;
-		 iteration= new JSlider(0,10000,100);
-		 iteration.setBounds(0,430,500,50);
-		 iteration.setBackground(Color.lightGray);
-		 iteration.setForeground(Color.YELLOW);
-		 iteration.setPaintTicks(true);
-		 iteration.setPaintLabels(true);
-		 iteration.setMajorTickSpacing(iterMayor);
-		 iteration.setMinorTickSpacing(iterMinor);
-		 iteration.addChangeListener(new iterListener());
-		 
-		 popText= new JLabel("Wie groß soll die Population sein?");
-		 popText.setBounds(0, 510, 1000, 20);
-		 int popMayor= 20;
-		 int popMinor=5;
-		 population= new JSlider(0,200,50);
-		 population.setBounds(0,530,500,50);
-		 population.setPaintTicks(true);
-		 population.setPaintLabels(true);
-		 population.setBackground(Color.lightGray);
-		 population.setForeground(Color.YELLOW);
-		 population.setMajorTickSpacing(popMayor);
-		 population.setMinorTickSpacing(popMinor);
-		 population.addChangeListener(new popListener());
-		 
-		 close=new JButton("Run Algorithm!");
-		 close.setBounds(500,620,120,50);
-		 close.setBackground(Color.gray);
-		 
-		 close.addActionListener(new closeListener());
-		 ButtonGroup crossover= new ButtonGroup();
-		 ButtonGroup mutation= new ButtonGroup();
-		 ButtonGroup elitism= new ButtonGroup();
-		
-		 elitism.add(EliNo);
-		 elitism.add(EliJa);
-		 crossover.add(Jox2C);
-		 crossover.add(JordC);
-		 crossover.add(JcycC);
-		 crossover.add(JpmxC);
-		 mutation.add(JinvM);
-		 mutation.add(JinsM);
-		 mutation.add(JdisM);
-		 mutation.add(JexcM);
-		 mutation.add(JmexM);
-		 
-		 add(iteration);
-		 add(population);
-		 add(Jox2C);
-		 add(JordC);
-		 add(JcycC);
-		 add(JpmxC);
-		 add(JinsM);
-		 add(JinvM);
-		 add(JdisM);
-		 add(JexcM);
-		 add(JmexM);
-		 add(MutText);
-		 add(CrossText);
-		 add(EliJa);
-		 add(EliNo);
-		 add(ElitismText);
-	
-		
-		 add(popText);
-		 add(iterText);
-		 add(close);
-		 
-	}
-	}*/
-//Run the correct operator
-
-/*
- * //	    	        if (elitism) {																//Keep best tour elitism=true
-//	    	            newOffsprings.saveTour(0, new Tour(pop.getFittest()));
-//	    	            elitismoffset = 1;		
-//	    	           
-//	    	        }
- */
-
-/*public void operate(String Recombination) {
-	  
-	
-	Tour child1=null;
-	Tour child2=null;
-	int Case=0;
-	if(Recombination.equals("Cycle")) {
-		Case=1;
-	  }
-	else if(Recombination==("PMX")) {
-		Case=2;
-	  }
-	else if(Recombination=="Ox2") {
-		Case=3;
-	  }
-	else if(Recombination=="Ord") {
-		Case=4;
-	}
-	
-	
-	
-	for (int z = elitismoffset; z < pop.populationSize(); z++) {   //Loop through every tour of the population
-		Tour parent1;
-		Tour parent2;
-	
-		if(TMS==true) {
-			parent1 = tournamentSelection(pop);							//Choose first parent chromosome with tournament selection
-			parent2 = tournamentSelection(pop); 
-			
-		}
-		else {
-			parent1 = RWS(pop);							//Choose first parent chromosome with tournament selection
-			parent2 = RWS(pop); 
-		}
-		
-			if(Math.random()<crossoverRate) {//If more than 2 tours are left, use Ox2-Crossover    		
-    			         					// Choose second parent chromosome with tournament selection
-	        	switch (Case) {
-					case 1:
-						Tour childs1[]= CycleC(parent1, parent2);
-						child1=childs1[0];
-						child2=childs1[1];
-						break;
-					case 2:
-					Tour childs2[]= PMX(parent1, parent2);
-					child1=childs2[0];
-					child2=childs2[1];
-					break;
-					case 3:
-						Tour childs3[]=Ox2Crossover(parent1,parent2);
-						
-						child1=new Tour(childs3[0]);
-						child2= new Tour (childs3[1]);
-					
-						break;
-					case 4:
-						child1 = OrderCrossover(parent1, parent2);
-					default:
-						break;
-				}   
-	        	
-	       		switch (Case) {
-					case 1: case 2: case 3:
-						if ((z+1)<pop.populationSize()) {
-							newOffsprings.saveTour(z, child1);    							
-							newOffsprings.saveTour((z+1),child2);    
-						
-							z++;
-							break;
-						}
-						else {
-							newOffsprings.saveTour(z, child1);  
-							break;
-						}	
-						case 4:
-							newOffsprings.saveTour(z, child1);
-							break;
-						default:
-							break;
-					}						
-				}  
-				else {
-					if ((z+1)<pop.populationSize()) {
-						newOffsprings.saveTour(z, parent1);
-						newOffsprings.saveTour(z+1, parent2);
-						}
-					else {
-						 newOffsprings.saveTour(z, parent1); 
-					}
-				}
-		}   	 	
-	}
-	    //Loop through tour and depending on mutation rate swap the city of the loop with another random city
-    private static void MultipleExchangeMutation(Tour tour) {  
-    	
-    	for(int tourPos1=0; tourPos1 < tour.tourSize(); tourPos1++){	
-            if(Math.random() < mutationRate){               				
-                int tourPos2 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities;        
-                City city1 = tour.getCity(tourPos1); 						
-                City city2 = tour.getCity(tourPos2);             
-                tour.setCity(tourPos2, city1);							
-                tour.setCity(tourPos1, city2);
-            }
-        }
-    }
-*/

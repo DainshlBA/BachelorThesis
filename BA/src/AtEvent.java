@@ -1,5 +1,3 @@
-
-
 import java.util.EventObject;
 
 // class for all events that represent an "arrived" status 

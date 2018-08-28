@@ -26,12 +26,13 @@ public class TimeElement{
 	}
 	
 //METHODS:
-	//Get hour of initialized time
+	//Gets hour of initialized time
 	@SuppressWarnings("deprecation")
 	public int getHour(){
 		return start.getTime().getHours();
 		
 	}
+	//Gets the milli seconds value at next hour
 	public long getMilliatNextHour() { 	
 		int year=start.getTime().getYear()+1900;
 		int month=start.getTime().getMonth();
@@ -42,7 +43,6 @@ public class TimeElement{
 		long timeAtNextHour;
 		Calendar nextHour= Calendar.getInstance();
 		nextHour.set(year,month,day,hour,minute,second);	
-//		System.out.println("TE: "+nextHour.getTime());
 		timeAtNextHour= nextHour.getTimeInMillis();  
 		return timeAtNextHour;
 		
@@ -62,23 +62,11 @@ public class TimeElement{
 		return timeToNextHour;						
 	}
 	
-	public void setTimetoMod10() {
-		int year=start.getTime().getYear()+1900;
-		int month=start.getTime().getMonth();
-		int day= start.getTime().getDate();
-		int hour=start.getTime().getHours()+1;
-		int minute=start.getTime().getMinutes();
-		int mod10 =start.getTime().getSeconds()%10;
-		int second=start.getTime().getSeconds()-mod10;
-		start.set(year,month,day,hour,minute,second);
-		startInMilli=start.getTimeInMillis();
-	}
-	
+	//set time of a TimeElement to a full hour at this day
 	public void setStartTimetoHour(int hour2) {
 		int year=start.getTime().getYear()+1900;
 		int month=start.getTime().getMonth();
 		int day= start.getTime().getDate();
-		
 		int minute=0;
 		int second=0;
 	
@@ -87,6 +75,7 @@ public class TimeElement{
 	
 	}
 	
+	//Diffrent toString() methods
 	@SuppressWarnings("deprecation")
 	public String toString() {
 		 String s="";

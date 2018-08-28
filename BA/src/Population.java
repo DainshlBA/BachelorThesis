@@ -12,6 +12,7 @@ public class Population {
 	//CONSTRUCTOR:
 	 // Initializes Tour Array
 	 // Initialize==true : Initialize a new population and randomly generate individuals
+	 //selfCreation==true: Initialize population with only one solution: the static initial solution
 	 public Population(int populationSize, boolean initialize, boolean selfCreation) {
 	     tours = new Tour[populationSize];         
 	     if (initialize) {	
@@ -30,7 +31,7 @@ public class Population {
 	    		for(int a=0; a<t.tourSize();a++) {
 	    			All_Cities.addCity(t.getCity(a));
 	    		}
-	    		Distanzmatrix.startCity=All_Cities.getCity(0);
+	    		D_Matrix.startCity=All_Cities.getCity(0);
 	    	}
 	     }
 	
@@ -88,62 +89,21 @@ public class Population {
 		return standDev;
 	 }
 	 
-	 
-	 public double getAvergeDiffrentCitiesofBest() {
-		 int diffCity=0;
-		 double erg;
-		 Tour best=getFittest();
-		 for(int a=0;a<populationSize();a++) {
-			 for(int aa=0;aa<best.tourSize();aa++) {
-				 if(best.getCity(aa).getId()!=getTour(a).getCity(aa).getId()) {
-					 diffCity++;
-				 }
-			 }
-		 }
-		 erg=Maths.round((diffCity/(populationSize()-1)),1);
-		 return erg;
-	 }
-	 public double getAvergeDiffrentCities() {
-		 int diffCity=0;
-		 double erg=0;
-		
-		 for(int b=0; b<populationSize();b++) {
-			 for(int a=0;a<populationSize();a++) {
-				 for(int aa=0;aa<getTour(b).tourSize();aa++) {
-					 if(getTour(b).getCity(aa).getId()!=getTour(a).getCity(aa).getId()) {
-						 diffCity++;
-					 }
-				 }
-			 }
-			 erg+=Maths.round((diffCity/(populationSize()-1)),1);
-			 diffCity=0;
-		 }
-		 erg=Maths.round((erg/populationSize()),0);
-		 return erg;
-	 }
-	 
+	 //Sets a tour of population to null
 	 public void deleteTour(Tour t) {
 		 int i=Arrays.asList(tours).indexOf(t);
 		
 		 tours[i]=null;
 		 }
 	 
-	 
+	 //Get tour of population by index
 	 public Tour getTour(int index) {
 	     return tours[index];
-	 }
-	 public Tour getFittest2() {
-			
-		rankPopulation();
-	
-	     return tours[tours.length-1];
-	 }
+	 } 
 
 	 //Returns the fittest and best individual 
 	 public Tour getFittest() {
-		
 		 Tour fittest=null;
-		 
 		 for(int nn=0; nn<tours.length;nn++) {
 			 if(tours[nn]!=null) {
 			
@@ -162,10 +122,12 @@ public class Population {
 	
 	     return fittest;
 	 }
-	
+	 
+	//Returns population size
 	 public int populationSize() {
 	 	return tours.length;
 	 }
+	 
 	//Get number of empty tours in population
 	 public int checkforNull() {
 		 int notNull=0;
@@ -176,6 +138,7 @@ public class Population {
 		 }
 		 return notNull;
 	 }
+	 
 	 //Check for duplicate Tours in population
 	 public boolean checkforDuplicates(Tour tocheck) {
 		 boolean duplicate=false;

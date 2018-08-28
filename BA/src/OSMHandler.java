@@ -1,24 +1,23 @@
-
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class OSMHandler extends DefaultHandler
-{
-		double lat;
-		double lon;
-		String id;
+//class that handles the XML content of the OSM Convert-API
 
+public class OSMHandler extends DefaultHandler{
+//VARIABLES:
+	
+	double lat;
+	double lon;
+	String id;
 
-
-    // Make sure that the code in DefaultHandler's
-    // constructor is called:
+//CONSTRUCTOR:
     public OSMHandler()
     {
         super();
     }
 
+//METHODS:
     public City getNode() {
     	City n=new City(id,"Node",lon,lat);
     	return n;
