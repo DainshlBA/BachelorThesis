@@ -22,7 +22,7 @@ public class D_Matrix {
 	// and add to All_Cities class
 	public static void createAll_Cities (){		
 			double[][] zwischenmatrix;
-			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Provinz40.txt";
+			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Instanz_RegionKraichtal40.txt";
 			readFile rf= new readFile(s);
 			rf.readingFile();
 			CreatingnumOfCities=rf.getNumberofCities();		
@@ -43,7 +43,7 @@ public class D_Matrix {
 			readFile rf= new readFile();
 			try {		
 				if(read) {
-					matrix=rf.readingMatrix("C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Provinz40_Matrix.txt");
+					matrix=rf.readingMatrix("C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Matrix_RegionKraichtal40.txt");
 				}
 				else {
 					matrix=Send_Request.createsmallMatrix();
