@@ -56,10 +56,10 @@ static TimeElement start;
 		start.setStartTimetoHour(hourstart);
 		
 		//Set file name of all .csv files
-		String staticpreRun="./"+"staticpreRun"+".csv";
-		String dynamic_RealTour="./"+"dynamic_RealTour"+".csv";
-		String dynamic_InitialTour="./"+"dynamic_InitialTour"+".csv";
-		String initialDataofRealTourSimulation="./"+"initialDataofDynamic"+".csv";
+		String staticpreRun="./"+"staticpreRun111"+".csv";
+		String dynamic_RealTour="./"+"dynamic_RealTour111"+".csv";
+		String dynamic_InitialTour="./"+"dynamic_InitialTour111"+".csv";
+		String initialDataofRealTourSimulation="./"+"initialDataofDynamic111"+".csv";
 		
 		
 		//!!!!
@@ -83,6 +83,15 @@ static TimeElement start;
 		
 		//Initialize population, do first iteration and save initial duration
 		Optimierer.evolvePopulation(true,initialtest);
+		System.out.println(Maths.intervall);
+		System.out.println(EA.best);
+		System.out.println(EA.best.getDuration());
+		for( int f=8;f<12;f++) {
+			for(int ff=1;ff<5;ff++) {
+				System.out.print(Maths.getFaktor(f, ff)+" ");
+			}
+		}
+		System.out.println();
 		EA.pop.rankPopulation();
 		best=EA.pop.getFittest();
 	
@@ -99,8 +108,8 @@ static TimeElement start;
 		
 		String[] Gfacs;
 		String sss="";
-		for(int a=0;a<Maths.SimulationsFaktoren.length;a++) {
-			sss+=String.valueOf(Maths.SimulationsFaktoren[a])+" ";
+		for(int a=0;a<Maths.Simulationsfaktor.length;a++) {
+			sss+=String.valueOf(Maths.Simulationsfaktor[a].wert)+" ";
 		}
 		Gfacs= new String[] {sss};
 		csvWriter2.writeNext(Gfacs);
@@ -209,7 +218,9 @@ static TimeElement start;
 		
       //Start dynamic simulation
  	  Optimierer.start();
- 	  
+ 	  for(int a=0;a<Simulator.upcomingEvents.size();a++) {
+ 		  System.out.println(Simulator.upcomingEvents.get(a));
+ 	  }
  	  long checktime=EA.dynamicStartinMilli;
  	  long MilliToWait=300000;
  	  
@@ -255,12 +266,13 @@ static TimeElement start;
  	 	// Simulation process is completed, inform user
 	 
 	 	  System.out.println("FINISH!!!");
-	      System.out.println();
+	    
+	    
 	      TimeElement ende = new TimeElement();    
 	      String[] SE= new String[]{"START: "+start.toString(),"ENDE: "+ende.toString()};
 	      csvWriter3.writeNext(SE);;
 	   	
-	   		csvWriter3.close();
+	   		//csvWriter3.close();
 	  
    }    
 }

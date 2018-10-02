@@ -79,10 +79,19 @@ public class EA implements myListener {
 		System.out.println();
 		System.out.println();
 		
+		
 		D_Matrix.createAll_Cities();
 		numberofCities=D_Matrix.CreatingnumOfCities;
 		D_Matrix.createDurationMatrix(readMatrix);
-		Maths.goGamma(c, theta, shiftDistance);
+		Maths.createFaktoren();
+		
+		for(int a=0; a<D_Matrix.matrix.length; a++) {
+			for(int b=0; b< D_Matrix.matrix.length;b++) {
+				System.out.print(D_Matrix.matrix[a][b]*1000+" ");
+			}
+			System.out.println();
+		}
+		
 		System.out.println("Einstellung sind getroffen worden!");
 	}
 	
@@ -1190,31 +1199,37 @@ public class EA implements myListener {
     		
     		//Get actual hour, time in Millis at next full hour, Time in Millis right know for summation and add toDrivetoNode value
     		int hour= lastEventTime.getHour();
-    		//summation variable for comparison with nexthour to detect an overlapos 
+    		//summation variable for comparison with nextStep to detect an overlapos 
     		long sumDurTF=lastEventTime.startInMilli+(long)toDrivetoNode*1000;
 	    	//Time in Millis at next full hour
-    		long nexthour=lastEventTime.getMilliatNextHour();
-	    	
+
+        	long nextStep=EA.lastEventTime.getMilliatNextStep();
+        	int step=EA.lastEventTime.getStep();
 	    	
 	    	//Check if sum overlapsed an hour and other special cases
-    		if(sumDurTF>nexthour) {
+    		if(sumDurTF>nextStep) {
     			hour++;
-    			nexthour+=3600000;			
+    			nextStep+=Maths.intervall;			
     		}
     		if(hour==24) {
 				hour=0;
 			}
 			
 			//Loop from start to the end of durations[] and add all values to toDrivetoCity with correct time factor, If hour is overlapsed, calculate ratio of time in each hour and assign the to the values
-			//add 1 hour (3600000 Millis) to nexthour, incrase hour, check if hour matches special cases
+			//add 1 hour (Maths.intervall Millis) to nextStep, incrase hour, check if hour matches special cases
 	    	for(int a=start; a<end;a++) {
-	    		if(sumDurTF+durations[a]*1000*Maths.getFaktor(hour)>nexthour) {
-	    			long ttnh=nexthour-sumDurTF;
+	    		if(sumDurTF+durations[a]*1000*Maths.getFaktor(hour,step)>nextStep) {
+	    			long ttnh=nextStep-sumDurTF;
 	    			toDrivetoCity+=Maths.round(ttnh/1000,3);
-	    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),0);
-	    			sumDurTF=nexthour;
-	    			nexthour+=3600000;	
-	    			hour+=1;
+	    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour,step)),0);
+	    			sumDurTF=nextStep;
+	    			nextStep+=Maths.intervall;	
+	    			step++;
+					
+					if(step>Faktor.steps) {
+						step=1;
+						hour++;
+					}
 					if(hour==24) {
 						hour=0;
 					}
@@ -1222,17 +1237,22 @@ public class EA implements myListener {
 	    			do {
 	    				
 	    				long y=(long)(durations[a]*1000)-x;
-	    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
-	    					sumDurTF+=y*Maths.getFaktor(hour);
-	    					toDrivetoCity+=(y/1000)*Maths.getFaktor(hour);
+	    				if((int)(y*Maths.getFaktor(hour,step)/Maths.intervall)==0) {
+	    					sumDurTF+=y*Maths.getFaktor(hour,step);
+	    					toDrivetoCity+=(y/1000)*Maths.getFaktor(hour,step);
 	    					finish=true;
 	    				}
 	    				else {
-	    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 0);
+	    					x+=(long)Maths.round(Maths.intervall/Maths.getFaktor(hour,step), 0);
 	    					toDrivetoCity+=3600;
-	    					sumDurTF=nexthour;
-	    					nexthour+=3600000;	
-	    	    			hour+=1;
+	    					sumDurTF=nextStep;
+	    					nextStep+=Maths.intervall;	
+	    					step++;
+	    					
+	    					if(step>Faktor.steps) {
+	    						step=1;
+	    						hour++;
+	    					}
 	    					if(hour==24) {
 	    						hour=0;
 	    					}
@@ -1244,8 +1264,8 @@ public class EA implements myListener {
 	    		//add full duration hour depending value
 	    		else {
 	    			
-	    			toDrivetoCity+=durations[a]*Maths.getFaktor(hour);
-	    			sumDurTF+=durations[a]*Maths.getFaktor(hour)*1000;
+	    			toDrivetoCity+=durations[a]*Maths.getFaktor(hour,step);
+	    			sumDurTF+=durations[a]*Maths.getFaktor(hour,step)*1000;
 	    			
 	    		}
 
@@ -1257,31 +1277,37 @@ public class EA implements myListener {
     	else if(Location=="Intersection") {
     		//Get actual hour, time in Millis at next full hour, Time in Millis right know for summation and add toDrivetoNode value
     		int hour= lastEventTime.getHour();
-    		//summation variable for comparison with nexthour to detect an overlapos 
+    		//summation variable for comparison with nextStep to detect an overlapos 
     		long sumDurTF=lastEventTime.startInMilli+(long)toDrivetoNode*1000;
 	    	//Time in Millis at next full hour
-    		long nexthour=lastEventTime.getMilliatNextHour();
-	    	
+    		long nextStep=lastEventTime.getMilliatNextHour();
+        	int step=EA.lastEventTime.getStep();
+
 	    	
 	    	//Check if sum overlapsed an hour and other special cases
-    		if(sumDurTF>nexthour) {
+    		if(sumDurTF>nextStep) {
     			hour++;
-    			nexthour+=3600000;			
+    			nextStep+=Maths.intervall;			
     		}
     		if(hour==24) {
 				hour=0;
 			}
 			
 			//Loop from start to the end of durations[] and add all values to toDrivetoCity with correct time factor, If hour is overlapsed, calculate ratio of time in each hour and assign the to the values
-			//add 1 hour (3600000 Millis) to nexthour, incrase hour, check if hour matches special cases
+			//add 1 hour (Maths.intervall Millis) to nextStep, incrase hour, check if hour matches special cases
 	    	for(int a=start; a<end;a++) {
-	    		if(sumDurTF+durations[a]*1000*Maths.getFaktor(hour)>nexthour) {
-	    			long ttnh=nexthour-sumDurTF;
+	    		if(sumDurTF+durations[a]*1000*Maths.getFaktor(hour,step)>nextStep) {
+	    			long ttnh=nextStep-sumDurTF;
 	    			toDrivetoIntersection+=Maths.round(ttnh/1000,3);
-	    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),0);
-	    			sumDurTF=nexthour;
-	    			nexthour+=3600000;	
-	    			hour+=1;
+	    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour,step)),0);
+	    			sumDurTF=nextStep;
+	    			nextStep+=Maths.intervall;	
+	    			step++;
+					
+					if(step>Faktor.steps) {
+						step=1;
+						hour++;
+					}
 					if(hour==24) {
 						hour=0;
 					}
@@ -1289,17 +1315,23 @@ public class EA implements myListener {
 	    			do {
 	    				
 	    				long y=(long)(durations[a]*1000)-x;
-	    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
-	    					sumDurTF+=y*Maths.getFaktor(hour);
-	    					toDrivetoIntersection+=(y/1000)*Maths.getFaktor(hour);
+	    				if((int)(y*Maths.getFaktor(hour,step)/Maths.intervall)==0) {
+	    					sumDurTF+=y*Maths.getFaktor(hour,step);
+	    					toDrivetoIntersection+=(y/1000)*Maths.getFaktor(hour,step);
 	    					finish=true;
 	    				}
 	    				else {
-	    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 0);
+	    					x+=(long)Maths.round(Maths.intervall/Maths.getFaktor(hour,step), 0);
 	    					toDrivetoIntersection+=3600;
-	    					sumDurTF=nexthour;
-	    					nexthour+=3600000;	
-	    	    			hour+=1;
+	    					sumDurTF=nextStep;
+	    					nextStep+=Maths.intervall;	
+	    	    			
+	    					step++;
+	    					
+	    					if(step>Faktor.steps) {
+	    						step=1;
+	    						hour++;
+	    					}
 	    					if(hour==24) {
 	    						hour=0;
 	    					}
@@ -1311,8 +1343,8 @@ public class EA implements myListener {
 	    		//add full duration hour depending value
 	    		else {
 	    			
-	    			toDrivetoIntersection+=durations[a]*Maths.getFaktor(hour);
-	    			sumDurTF+=durations[a]*Maths.getFaktor(hour)*1000;
+	    			toDrivetoIntersection+=durations[a]*Maths.getFaktor(hour,step);
+	    			sumDurTF+=durations[a]*Maths.getFaktor(hour,step)*1000;
 	    			
 	    		}
 
@@ -1323,16 +1355,21 @@ public class EA implements myListener {
 
      	else if(Location=="Node") {
      		int hour= lastEventTime.getHour();
-	    	long nexthour=lastEventTime.getMilliatNextHour();
+	    	long nextStep=lastEventTime.getMilliatNextHour();
 	    	long sumDurTF=lastEventTime.startInMilli;   	
-	        			
-			if(sumDurTF+durations[start]*ratio*1000*Maths.getFaktor(hour)>nexthour) {
-				long ttnh=nexthour-sumDurTF;
+	    	int step=EA.lastEventTime.getStep();			
+			if(sumDurTF+durations[start]*ratio*1000*Maths.getFaktor(hour,step)>nextStep) {
+				long ttnh=nextStep-sumDurTF;
     			toDrivetoNode+=Maths.round(ttnh/1000,3);
-    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),0);
-    			sumDurTF=nexthour;
-    			nexthour+=3600000;	
-    			hour+=1;
+    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour,step)),0);
+    			sumDurTF=nextStep;
+    			nextStep+=Maths.intervall;	
+    			step++;
+				
+				if(step>Faktor.steps) {
+					step=1;
+					hour++;
+				}
 				if(hour==24) {
 					hour=0;
 				}
@@ -1340,17 +1377,22 @@ public class EA implements myListener {
     			do {
     				
     				long y=(long)(durations[start]*ratio*1000)-x;
-    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
-    					sumDurTF+=y*Maths.getFaktor(hour);
-    					toDrivetoNode+=(y/1000)*Maths.getFaktor(hour);
+    				if((int)(y*Maths.getFaktor(hour,step)/Maths.intervall)==0) {
+    					sumDurTF+=y*Maths.getFaktor(hour,step);
+    					toDrivetoNode+=(y/1000)*Maths.getFaktor(hour,step);
     					finish=true;
     				}
     				else {
-    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 0);
+    					x+=(long)Maths.round(Maths.intervall/Maths.getFaktor(hour,step), 0);
     					toDrivetoNode+=3600;
-    					sumDurTF=nexthour;
-    					nexthour+=3600000;	
-    	    			hour+=1;
+    					sumDurTF=nextStep;
+    					nextStep+=Maths.intervall;	
+    					step++;
+    					
+    					if(step>Faktor.steps) {
+    						step=1;
+    						hour++;
+    					}
     					if(hour==24) {
     						hour=0;
     					}
@@ -1360,7 +1402,7 @@ public class EA implements myListener {
 			
 			}
     		else {
-    			toDrivetoNode+=durations[start]*ratio*Maths.getFaktor(hour);	
+    			toDrivetoNode+=durations[start]*ratio*Maths.getFaktor(hour,step);	
     		}
 			toDrivetoNode=Maths.round(toDrivetoNode, 2);	    	
      	}  	

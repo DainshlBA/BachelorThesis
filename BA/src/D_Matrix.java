@@ -21,7 +21,7 @@ public class D_Matrix {
 	// and add to All_Cities class
 	public static void createAll_Cities (){		
 			double[][] zwischenmatrix;
-			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Instanz_RegionKraichtal40.txt";
+			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\TTTEST";
 			readFile rf= new readFile(s);
 			rf.readingFile();
 			CreatingnumOfCities=rf.getNumberofCities();		
@@ -45,7 +45,7 @@ public class D_Matrix {
 					matrix=rf.readingMatrix("C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Matrix_RegionKraichtal40.txt");
 				}
 				else {
-					matrix=Send_Request.createsmallMatrix();
+					matrix=Send_Request.createBasicMatrix();
 				}
 			} 
 			catch (Exception e) {
@@ -53,22 +53,7 @@ public class D_Matrix {
 			}
 
 		}
-	
-	// create all 24 matrixes by multiplying each value with its hour factor
-	// add each double array matrix to ArrayList allMatrix at position of corresponding hour
-	public static void createAllMatrixes(){
-		for(int i=0; i<24;i++) {
-			double faktor= Maths.getFaktor(i);
-			double newMatrix[][] = new double[matrix.length][matrix.length];
-			for(int j=0;j<matrix.length-1;j++) {				//Matrix wird mit +1 Stellen extra erzeugt für Zwischenwerte
-				for(int k=0; k<matrix.length-1;k++) {
-					newMatrix[j][k]=matrix[j][k]*faktor;
-				}
-			}
-			allMatrix.add(newMatrix);
-		}
-		allMatrix.add(matrix);
-	}
+
 	
 	// Table service request (1 x n) for next Intersection in best solution tour
 	// Occurs with atCity-Event or atIntersection-Event if their is a change in best solution/Tour 

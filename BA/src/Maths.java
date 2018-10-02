@@ -8,15 +8,21 @@ public class Maths {
 	
 //VARIABLES:
 	//All 24 factors representing traffic at specific hour
-	static double []Faktoren= {(1/1.2),(1/1.3),(1/1.2),(1/1.1),(1/1),(1/0.9),(1/0.8),(1/0.7),(1/0.8),(1/0.85),(1/0.9),(1/0.95),(1/1),(1/0.9),(1/0.8),(1/0.7),(1/0.75),(1/0.8),(1/0.9),(1/0.95),(1/1),(1/1.05),(1/1.1),(1/1.15)};
+	static int intervall;
+	static Faktor[] faktor;
+	static Faktor[] Simulationsfaktor;
+	static double [] Faktoren= {(1/1.2),(1/1.3),(1/1.2),(1/1.1),(1/1),(1/0.9),(1/0.8),(1/0.7),(1/0.8),(1/0.85),(1/0.9),(1/0.95),(1/1),(1/0.9),(1/0.8),(1/0.7),(1/0.75),(1/0.8),(1/0.9),(1/0.95),(1/1),(1/1.05),(1/1.1),(1/1.15)};
 	static double [] SimulationsFaktoren= new double[Faktoren.length];
 	static double [] GammaFaktoren={(1/1.23),(1/1.34),(1/1.21),(1/1.13),(1/1.4),(1/0.93),(1/0.83),(1/0.71),(1/0.82),(1/0.851),(1/0.92),(1/0.953),(1/1.14),(1/0.92),(1/0.9),(1/0.72),(1/0.735),(1/0.78),(1/0.89),(1/0.975),(1/1.1),(1/1.15),(1/1.21),(1/1.115)};
 //METHODS:
-	public static double getFaktor(int hour) {
-		return Faktoren[hour];
+	public static double getFaktor(int hour, int step) {
+		int pos=hour*Faktor.steps+step-1;
+		return faktor[pos].wert;
+		
 	}
-	public static double getGammaFaktor(int hour) {
-		return SimulationsFaktoren[hour];
+	public static double getGammaFaktor(int hour, int step) {
+		int pos=hour*Faktor.steps+step-1;
+		return Simulationsfaktor[pos].wert;
 	}
 	// Method for rounding a double value to specific number of decimal places 
 	public  static double round(double value, double decimal){
@@ -38,19 +44,23 @@ public class Maths {
 	}
 	
 	
-	//Calculate simulation factors for simulation by applying gamma distribution
-	//In case of static initial tour simulation: read factors from text file
-	public static void goGamma(double k, double theta, double shiftDistance) {
-		SimulationsFaktoren= new double[Faktoren.length];
+	public static void createFaktoren() {
+		readFile rf = new readFile();
+		
+		String path="C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Faktoren";
+		faktor=rf.readFaktoren(path);
+		intervall=(60/(faktor.length/24))*60*1000;
+		Simulationsfaktor= new Faktor[faktor.length];
+		
 		if(Run.initialtest==false) {
-			for(int a=0; a<Faktoren.length;a++) {
+			for(int a=0; a<faktor.length;a++) {
 				
 				boolean accept = false;
 				Random rng = new Random(Calendar.getInstance().getTimeInMillis() + Thread.currentThread().getId());
-			    if (k < 1) {
+			    if (EA.c < 1) {
 			    	// Weibull algorithm
-			    	double c = (1 / k);
-			    	double d = ((1 - k) * Math.pow(k, (k / (1 - k))));
+			    	double c = (1 / EA.c);
+			    	double d = ((1 - EA.c) * Math.pow(c, (c / (1 - c))));
 			    	double u, v, z, e, x;
 			    	
 			    	do {
@@ -64,16 +74,16 @@ public class Maths {
 			    			accept = true;
 			    			}
 			    		} while (!accept);
-			    	double GammaValue =  ((x * theta) + shiftDistance);
-			    
-			    	SimulationsFaktoren[a] = Faktoren[a] * GammaValue;
+			    	double GammaValue =  ((x * EA.theta) + EA.shiftDistance);
+			    	Faktor f= new Faktor(faktor[a].uhrzeit,faktor[a].wert * GammaValue);
+			    	Simulationsfaktor[a] = f;
 			    	
 			    } 
 			    else {	
 				 // Cheng's algorithm   	
-				 double b = (k - Math.log(4));
-				 double c = (k + Math.sqrt(2 * k - 1));
-				 double lam = Math.sqrt(2 * k - 1);
+				 double b = (EA.c - Math.log(4));
+				 double c = (EA.c + Math.sqrt(2 * EA.c - 1));
+				 double lam = Math.sqrt(2 * EA.c - 1);
 				 double cheng = (1 + Math.log(4.5));
 				 double u, v, x, y, z, r;
 				 
@@ -81,7 +91,7 @@ public class Maths {
 					 u = rng.nextDouble();
 					 v = rng.nextDouble();
 					 y = ((1 / lam) * Math.log(v / (1 - v)));
-					 x = (k * Math.exp(y));
+					 x = (EA.c * Math.exp(y));
 					 z = (u * v * v);
 					 r = (b + (c * y) - x);
 					 
@@ -91,15 +101,17 @@ public class Maths {
 					 
 					 } while (!accept);
 				 
-				 double GammaValue = ((x * theta) + shiftDistance);
-				 SimulationsFaktoren[a] = Faktoren[a] * GammaValue;
+				 double GammaValue = ((x * EA.theta) + EA.shiftDistance);
+					Faktor f= new Faktor(faktor[a].uhrzeit,faktor[a].wert * GammaValue);
+					
+			    	Simulationsfaktor[a] = f;
 			    }  
 			}
 		}
 		else {
-			readFile rf = new readFile();
-			String path="C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\GFaktoren.txt";
-			SimulationsFaktoren=rf.readGammaFaktoren(path);
+			readFile rf2 = new readFile();
+			String path2="C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\GFaktoren.txt";
+			//SimulationsFaktoren=rf2.readGammaFaktoren(path2);
 		}
 	}
 }

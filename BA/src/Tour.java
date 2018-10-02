@@ -136,7 +136,9 @@ public class Tour {
 			//actual hour
     		int hour= EA.lastEventTime.getHour();
 			//Time in Millis at next full hour
-        	long nexthour=EA.lastEventTime.getMilliatNextHour();
+        	long nextStep=EA.lastEventTime.getMilliatNextStep();
+        	int step=EA.lastEventTime.getStep();
+        	
 			//Sum for comparing if there is an houroverlaps
         	long sumMilli=EA.lastEventTime.startInMilli;
 			//value of next full hour
@@ -147,28 +149,41 @@ public class Tour {
 			//Add toDriveto Value from EA to totalduration, first part of calculation
 	    	totalduration =EA.toDrivetoCity+EA.toDrivetoIntersection;
 	    
-	    	if(sumMilli+totalduration*1000>nexthour) { 
-	    		hour++;
-	    		long ttnh=nexthour-sumMilli;
+	    	//ABfrage......... fehlt
+	    	
+	    	if(sumMilli+totalduration*1000>nextStep) { 
+	    		step++;
+	    		long ttnh=nextStep-sumMilli;
 	    		long x =ttnh;
-	    		sumMilli=nexthour;
-	    		nexthour+=3600000;
+	    		sumMilli=nextStep;
+	    		nextStep+=Maths.intervall;
 	    		boolean finish=false;
+				
+				if(step>Faktor.steps) {
+					hour++;
+					step=1;
+				}
 				if(hour==24) {
 					hour=0;
 				}
 	    		do {
     				
     				long y=(long)(totalduration*1000)-x;
-    				if((int)(y/3600000)==0) {
-    					sumMilli+=y;
+    				if((int)(y/Maths.intervall)==0) {
+    					sumMilli+=y;//+Maths.get
     					finish=true;
     				}
     				else {
-    					x+=3600000;	
-    					sumMilli=nexthour;
-    					nexthour+=3600000;	
-    	    			hour+=1;
+    					x+=Maths.intervall;	
+    					sumMilli=nextStep;
+    					nextStep+=Maths.intervall;	
+    	    			
+    	    			step++;
+    					
+    					if(step>Faktor.steps) {
+    						step=1;
+    						hour++;
+    					}
     					if(hour==24) {
     						hour=0;
     					}
@@ -187,13 +202,19 @@ public class Tour {
 	    		//Get ID for selecting correct value in intersection matrix range
 	    		int a=Integer.parseInt(this.getCity(2).getId());
 	    		//General calculation process
-				 if(sumMilli+D_Matrix.matrix[D_Matrix.CreatingnumOfCities][a]*Maths.getFaktor(hour)*1000>nexthour) {
-						long ttnh=nexthour-sumMilli;
-		    			totalduration+=Maths.round((ttnh/1000),3);
-		    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),0);
-		    			sumMilli=nexthour;
-		    			nexthour+=3600000;	
-		    			hour+=1;
+				 if(sumMilli+D_Matrix.matrix[D_Matrix.CreatingnumOfCities][a]*Maths.getFaktor(hour,step)*1000>nextStep) {
+						long ttnh=nextStep-sumMilli;
+		    			totalduration+=ttnh/1000;
+		    			long x =(long)(ttnh/Maths.getFaktor(hour,step));
+		    			sumMilli=nextStep;
+		    			nextStep+=Maths.intervall;	
+		    			
+		    			step++;
+						
+						if(step>Faktor.steps) {
+    						step=1;
+    						hour++;
+    					}
 						if(hour==24) {
 							hour=0;
 						}
@@ -201,17 +222,23 @@ public class Tour {
 		    			do {
 		    				
 		    				long y=(long)(D_Matrix.matrix[D_Matrix.CreatingnumOfCities][a]*1000)-x;
-		    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
-		    					sumMilli+=y*Maths.getFaktor(hour);
-		    					totalduration+=(y/1000)*Maths.getFaktor(hour);
+		    				if((int)(y*Maths.getFaktor(hour,step)/Maths.intervall)==0) {
+		    					sumMilli+=y*Maths.getFaktor(hour,step);
+		    					totalduration+=(y/1000)*Maths.getFaktor(hour,step);
 		    					finish=true;
 		    				}
 		    				else {
-		    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 0);
+		    					x+=(long)(Maths.intervall/Maths.getFaktor(hour,step));
 		    					totalduration+=3600;
-		    					sumMilli=nexthour;
-		    					nexthour+=3600000;	
-		    	    			hour+=1;
+		    					sumMilli=nextStep;
+		    					nextStep+=Maths.intervall;	
+		    	    			
+		    	    			step++;
+		    					
+		    					if(step>Faktor.steps) {
+		    						hour++;
+		    						step=1;
+		    					}
 		    					if(hour==24) {
 		    						hour=0;
 		    					}
@@ -222,8 +249,8 @@ public class Tour {
 					}
 					else {
 						
-						totalduration+=D_Matrix.matrix[D_Matrix.CreatingnumOfCities][a]+Maths.getFaktor(hour);	
-						sumMilli+=D_Matrix.matrix[D_Matrix.CreatingnumOfCities][a]*1000*Maths.getFaktor(hour);	
+						totalduration+=D_Matrix.matrix[D_Matrix.CreatingnumOfCities][a]+Maths.getFaktor(hour,step);	
+						sumMilli+=D_Matrix.matrix[D_Matrix.CreatingnumOfCities][a]*1000*Maths.getFaktor(hour,step);	
 						
 					}
 	    	}
@@ -251,34 +278,43 @@ public class Tour {
 					int a = Integer.parseInt(fromCity.getId());
 					int b = Integer.parseInt(destinationCity.getId());
 				
-					if(sumMilli+D_Matrix.matrix[a][b]*Maths.getFaktor(hour)*1000>nexthour) {
-						long ttnh=nexthour-sumMilli;
+					if(sumMilli+D_Matrix.matrix[a][b]*Maths.getFaktor(hour,step)*1000>nextStep) {
+						long ttnh=nextStep-sumMilli;
 						
-		    			totalduration+=Maths.round(ttnh/1000,3);
-		    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),0);
-		    			sumMilli=nexthour;
-		    			nexthour+=3600000;	
-		    			hour+=1;
+		    			totalduration+=ttnh/1000;
+		    			long x =(long)(ttnh/Maths.getFaktor(hour,step));
+		    			sumMilli=nextStep;
+		    			nextStep+=Maths.intervall;	
+		    			
+		    			step++;
+						if(step>Faktor.steps) {
+							hour++;
+							step=1;
+    					}
 						if(hour==24) {
 							hour=0;
 						}
-					
-		    			boolean finish=false;
+						boolean finish=false;
 		    			do {
 		    				
 		    				long y=(long)(D_Matrix.matrix[a][b]*1000)-x;
-		    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
-		    					sumMilli+=y*Maths.getFaktor(hour);
-		    					totalduration+=(y/1000)*Maths.getFaktor(hour);
+		    				if((int)(y*Maths.getFaktor(hour,step)/Maths.intervall)==0) {
+		    					sumMilli+=y*Maths.getFaktor(hour,step);
+		    					totalduration+=(y/1000)*Maths.getFaktor(hour,step);
 		    					finish=true;
 		    				
 		    				}
 		    				else {
-		    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 0);
+		    					x+=(long)(Maths.intervall/Maths.getFaktor(hour,step));
 		    					totalduration+=3600;
-		    					sumMilli=nexthour;
-		    					nexthour+=3600000;	
-		    	    			hour+=1;
+		    					sumMilli=nextStep;
+		    					nextStep+=Maths.intervall;	
+		    	    			
+		    	    			step++;
+		    					if(step>Faktor.steps) {
+		    						hour++;
+		    						step=1;
+		    					}
 		    					if(hour==24) {
 		    						hour=0;
 		    					}
@@ -289,13 +325,13 @@ public class Tour {
 						
 					}
 					else {
-						totalduration+=D_Matrix.matrix[a][b]*Maths.getFaktor(hour);	
-						sumMilli+=D_Matrix.matrix[a][b]*1000*Maths.getFaktor(hour);	
+						totalduration+=D_Matrix.matrix[a][b]*Maths.getFaktor(hour,step);	
+						sumMilli+=D_Matrix.matrix[a][b]*1000*Maths.getFaktor(hour,step);	
 					}
 				}
 	    	}
 	    	
-	    	totalduration=Maths.round(totalduration, 1);
+	    	totalduration=Maths.round(totalduration, 3);
 	    	return totalduration;
 	    	
     		}
@@ -311,8 +347,8 @@ public class Tour {
     		if(totalduration==0) {
     		TimeElement now = Run.start;
     		int hour= now.getHour();
-    		
-        	long nexthour=now.getMilliatNextHour();
+    		int step=now.getStep();
+        	long nextStep=now.getMilliatNextStep();
         	long sumMilli=now.startInMilli;
        
    		 	for (int cityIndex=0; cityIndex < tourSize(); cityIndex++) { 		
@@ -327,13 +363,19 @@ public class Tour {
    		 		int a = Integer.parseInt(fromCity.getId());
    		 		int b = Integer.parseInt(destinationCity.getId());
    		 		
-   		 		if(sumMilli+D_Matrix.matrix[a][b]*Maths.getFaktor(hour)*1000>nexthour) {
-   		 			long ttnh=nexthour-sumMilli;
-	    			totalduration+=Maths.round(ttnh/1000,1);
-	    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),3);
-	    			sumMilli=nexthour;
-	    			nexthour+=3600000;	
-	    			hour+=1;
+   		 		if(sumMilli+D_Matrix.matrix[a][b]*Maths.getFaktor(hour,step)*1000>nextStep) {
+   		 			long ttnh=nextStep-sumMilli;
+	    			totalduration+=ttnh/1000;
+	    			long x =(long)(ttnh/Maths.getFaktor(hour,step));
+	    			sumMilli=nextStep;
+	    			nextStep+=Maths.intervall;	
+	    			
+	    			step++;
+					
+					if(step>Faktor.steps) {
+						hour++;
+						step=1;
+					}
 					if(hour==24) {
 						hour=0;
 					}
@@ -341,17 +383,23 @@ public class Tour {
 	    			do {
 	    				
 	    				long y=(long)(D_Matrix.matrix[a][b]*1000)-x;
-	    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
-	    					sumMilli+=y*Maths.getFaktor(hour);
-	    					totalduration+=Maths.round((y/1000)*Maths.getFaktor(hour),1);
+	    				if((int)(y*Maths.getFaktor(hour,step)/Maths.intervall)==0) {
+	    					sumMilli+=y*Maths.getFaktor(hour,step);
+	    					totalduration+=(y/1000)*Maths.getFaktor(hour,step);
 	    					finish=true;
 	    				}
 	    				else {
-	    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 3);
+	    					x+=(long)(Maths.intervall/Maths.getFaktor(hour,step));
 	    					totalduration+=3600;
-	    					sumMilli=nexthour;
-	    					nexthour+=3600000;	
-	    	    			hour+=1;
+	    					sumMilli=nextStep;
+	    					nextStep+=Maths.intervall;	
+	    	    			
+	    	    			step++;
+	    					
+	    					if(step>Faktor.steps) {
+	    						step=1;
+	    						hour++;
+	    					}
 	    					if(hour==24) {
 	    						hour=0;
 	    					}
@@ -360,11 +408,11 @@ public class Tour {
 	    			while(finish==false);   
    		 		}
    		 		else {
-					totalduration+=Maths.round(D_Matrix.matrix[a][b]*Maths.getFaktor(hour),1);	
-					sumMilli+=D_Matrix.matrix[a][b]*1000*Maths.getFaktor(hour);	
+					totalduration+=D_Matrix.matrix[a][b]*Maths.getFaktor(hour,step);	
+					sumMilli+=D_Matrix.matrix[a][b]*1000*Maths.getFaktor(hour,step);	
    		 		}
    		 	}
-   		 	totalduration= Maths.round(totalduration,1);
+   		 	totalduration= Maths.round(totalduration,3);
    		 	return totalduration;  	
     	}
     		else {
@@ -377,11 +425,10 @@ public class Tour {
     	totalduration=0;
     	//Values just needed for logger results evaluation
     	if(totalduration==0) {
-    		//actual hour
     		int hour= EA.lastEventTime.getHour();
 			//Time in Millis at next full hour
-        	long nexthour=EA.lastEventTime.getMilliatNextHour();
-			//Sum for comparing if there is an houroverlaps
+        	long nextStep=EA.lastEventTime.getMilliatNextStep();
+        	int step=EA.lastEventTime.getStep();
         	long sumMilli=EA.lastEventTime.startInMilli;
         
    		 	for (int cityIndex=0; cityIndex < tourSize(); cityIndex++) { 		
@@ -395,13 +442,19 @@ public class Tour {
                 } 
    		 		int a = Integer.parseInt(fromCity.getId());
    		 		int b = Integer.parseInt(destinationCity.getId());
-   		 		if(sumMilli+D_Matrix.matrix[a][b]*Maths.getFaktor(hour)*1000>nexthour) {
-   		 			long ttnh=nexthour-sumMilli;
-	    			totalduration+=Maths.round(ttnh/1000,3);
-	    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour)),0);
-	    			sumMilli=nexthour;
-	    			nexthour+=3600000;	
-	    			hour+=1;
+   		 		if(sumMilli+D_Matrix.matrix[a][b]*Maths.getFaktor(hour,step)*1000>nextStep) {
+   		 			long ttnh=nextStep-sumMilli;
+	    			totalduration+=ttnh/1000;
+	    			long x =(long)(ttnh/Maths.getFaktor(hour,step));
+	    			sumMilli=nextStep;
+	    			nextStep+=Maths.intervall;	
+	    			
+	    			step++;
+					
+					if(step>Faktor.steps) {
+						step=1;
+						hour++;
+					}
 					if(hour==24) {
 						hour=0;
 					}
@@ -409,17 +462,22 @@ public class Tour {
 	    			do {
 	    				
 	    				long y=(long)(D_Matrix.matrix[a][b]*1000)-x;
-	    				if((int)(y*Maths.getFaktor(hour)/3600000)==0) {
-	    					sumMilli+=y*Maths.getFaktor(hour);
-	    					totalduration+=(y/1000)*Maths.getFaktor(hour);
+	    				if((int)(y*Maths.getFaktor(hour,step)/Maths.intervall)==0) {
+	    					sumMilli+=y*Maths.getFaktor(hour,step);
+	    					totalduration+=(y/1000)*Maths.getFaktor(hour,step);
 	    					finish=true;
 	    				}
 	    				else {
-	    					x+=(long)Maths.round(3600000/Maths.getFaktor(hour), 0);
+	    					x+=(long)(Maths.intervall/Maths.getFaktor(hour,step));
 	    					totalduration+=3600;
-	    					sumMilli=nexthour;
-	    					nexthour+=3600000;	
-	    	    			hour+=1;
+	    					sumMilli=nextStep;
+	    					nextStep+=Maths.intervall;	
+	    	    			
+	    	    			step++;
+	    					if(step>Faktor.steps) {
+	    						step=1;
+	    						hour++;
+	    					}
 	    					if(hour==24) {
 	    						hour=0;
 	    					}
@@ -428,8 +486,8 @@ public class Tour {
 	    			while(finish==false);   
    		 		}
    		 		else {
-					totalduration+=D_Matrix.matrix[a][b]*Maths.getFaktor(hour);	
-					sumMilli+=D_Matrix.matrix[a][b]*1000*Maths.getFaktor(hour);	
+					totalduration+=D_Matrix.matrix[a][b]*Maths.getFaktor(hour,step);	
+					sumMilli+=D_Matrix.matrix[a][b]*1000*Maths.getFaktor(hour,step);	
    		 		}
    		 	}
    		 	totalduration= Maths.round(totalduration,3);

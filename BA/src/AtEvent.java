@@ -40,7 +40,8 @@ public class AtEvent extends EventObject {
 	}
 	public String toString() {
 		 String s="";
-		 s="EventTime: "+EventTime+" ID: "+location.id+" ,Type: "+location.getType()+" Lon: "+location.getLongitude()+" Lat: "+location.getLatitude();
+		 TimeElement te= new TimeElement(EventTime);
+		 s="EventTime: "+EventTime+" "+te.toString() +" ID: "+location.id+" ,Type: "+location.getType()+" Lon: "+location.getLongitude()+" Lat: "+location.getLatitude();
 		 return s;
 	 }
 }

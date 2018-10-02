@@ -108,8 +108,39 @@ public class readFile {
 	}
 	
 	//Reads the simulation factors of the real tour simulation to use them for simulating the static initial tour
-	public double[] readGammaFaktoren(String p) {
-		double []fak = new double[24];
+//	public Faktor[] readGammaFaktoren(String p) {
+//		Faktor []fak ;
+//		try{
+//			File ff= new File(p);
+//			br= new BufferedReader(new FileReader(ff));
+//			s = new Scanner(ff);
+//			
+//		}
+//		catch(FileNotFoundException e){
+//			System.out.print("File not found");
+//		}
+//		String line="";
+//
+//		try{
+//			while((line=br.readLine())!=null){
+//				countlines+=1;
+//			}
+//		}
+//		catch(IOException ioex){
+//			System.out.print("Error reading file");
+//		}
+//		String b;
+//		for(int a=0;a<countlines;a++) {
+//			b=s.next();
+//		
+//		}
+//
+//		s.close();
+//		return fak;
+//	}
+	
+	public Faktor[] readFaktoren(String p) {
+	
 		try{
 			File ff= new File(p);
 			br= new BufferedReader(new FileReader(ff));
@@ -119,10 +150,28 @@ public class readFile {
 		catch(FileNotFoundException e){
 			System.out.print("File not found");
 		}
+		String line="";
+
+		try{
+			while((line=br.readLine())!=null){
+				countlines+=1;
+			}
+		}
+		catch(IOException ioex){
+			System.out.print("Error reading file");
+		}
+		int abc=countlines%24;
+		int numberOffactor=countlines-abc;
+		int steps=numberOffactor/24;
+		Faktor.setSteps(steps);
 		String b;
-		for(int a=0;a<24;a++) {
+		Faktor []fak= new Faktor[numberOffactor];
+		double uhrzeit=0.00;
+		for(int a=0;a<numberOffactor;a++) {
+			uhrzeit+=1/steps;
 			b=s.next();
-			fak[a]=Double.parseDouble(b);
+			Faktor f= new Faktor(uhrzeit,Double.parseDouble(b));
+			fak[a]=f;
 		}
 
 		s.close();
