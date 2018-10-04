@@ -59,8 +59,8 @@ public class D_Matrix {
 	// Occurs with atCity-Event or atIntersection-Event if their is a change in best solution/Tour 
 	// Overwrite old values and add new values to matrix in extra row
 	// Add hour value to each of the 24 matrixes
-	public static void updateAllMatrix() throws Exception {
-		double[]IntersectionMatrix=Send_Request.IntersectionMatrix(EA.best.getCity(1));
+	public static void updateAllMatrix(City Kreuzung) throws Exception {
+		double[]IntersectionMatrix=Send_Request.IntersectionMatrix(Kreuzung);
 		
 		for(int i=0;i<matrix.length-1;i++) {
 			matrix[matrix.length-1][i]=IntersectionMatrix[i];

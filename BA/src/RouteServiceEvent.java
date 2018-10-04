@@ -6,14 +6,14 @@ public class RouteServiceEvent extends EventObject{
 
 //VARIABLES:
 	private static final long serialVersionUID = 1L;
-	double[] durations;
+	ArrayList<Double> durations;
 	Tour best;
 	ArrayList<City> Nodes;
 	ArrayList<City> Intersection;
 	TimeElement eTime;
 
 //CONSTRUCTOR:
-	public RouteServiceEvent(EA Opti, ArrayList<City> nodes, ArrayList<City> intersections, double[] durations, Tour best,TimeElement te) {
+	public RouteServiceEvent(EA Opti, ArrayList<City> nodes, ArrayList<City> intersections, ArrayList<Double> durations, Tour best,TimeElement te) {
 		super(Opti);
 		this.Nodes=nodes;
 		this.Intersection=intersections;

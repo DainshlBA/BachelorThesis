@@ -41,8 +41,10 @@ public class EA implements myListener {
 	static boolean OP_Stop=false;
 	static boolean lastCityvisited=false;
 	static boolean START=false;
-
-	
+	int InterinNode=0;
+	int InterinInter=0;
+	static City intermediate;
+	boolean nomoreInters=false;
 	//Selection operators 
 	static boolean RWS=true;
 	static boolean TMS=false;
@@ -51,7 +53,7 @@ public class EA implements myListener {
 	//API request data
 	ArrayList<City> Nodes;
 	ArrayList<City> Intersections;
-	static double[] durations;
+	static ArrayList <Double> durations;
 	
 	//Eventhandling and duration calculation
 	static int GPS_frequency=5;
@@ -66,7 +68,7 @@ public class EA implements myListener {
 	static TimeElement lastEventTime;
 	static TimeElement start;
 	private ArrayList<RouteServiceListener> listenerList= new ArrayList<RouteServiceListener>();
-	
+	static boolean includeIvalue=false;
 
 	//METHODS:
 	
@@ -620,7 +622,7 @@ public class EA implements myListener {
     	START=true;
     	Route route= new Route();
 		lastEventTime= Run.start; 
-		blockedCities=2;
+	//	blockedCities=2;
 		route.WayFromTo(best);
 		durations=route.Duration;
 		EventCounter++;
@@ -639,7 +641,7 @@ public class EA implements myListener {
 		if(avg_ratio_start<0) {
 			avg_ratio_start=avg_ratio_start*(-1);
 		}
-		durations[0]=durations[0]*avg_ratio_start;
+		durations.set(0, durations.get(0)*avg_ratio_start);
 		
 		All_Cities.getCity(0).setCoordinates(Intersections.get(0).getLongitude(), Intersections.get(0).getLatitude());
 		D_Matrix.startCity.setCoordinates(Intersections.get(0).getLongitude(), Intersections.get(0).getLatitude());
@@ -651,7 +653,7 @@ public class EA implements myListener {
 		if(avg_ratio_end<0) {
 			avg_ratio_end=avg_ratio_end*(-1);
 		}
-		durations[durations.length-1]=durations[durations.length-1]*avg_ratio_end;
+		durations.set(durations.size()-1, durations.get(durations.size()-1)*avg_ratio_end);
 		int pos2 = All_Cities.PositionofCity(best.getCity(1)); 
 		
 		for(int ff=0; ff<All_Cities.numberOfCities();ff++) {
@@ -664,23 +666,12 @@ public class EA implements myListener {
 		RouteServiceEvent event= new RouteServiceEvent(this, Nodes,Intersections, durations,best,lastEventTime);
 		fireEvent(event);
 		
-		
-		//Repair all tours in actual population and fittest tour "best"
-		for ( int t =0; t<pop.populationSize();t++) {
-			if(Intersections.get(1).getType()=="Intersection"){
-				pop.getTour(t).addatPosition(1,Intersections.get(1));
-			}
-			else {
-				int delete=pop.getTour(t).positionofCity(best.getCity(2));
-				pop.getTour(t).deleteCity(delete);
-				pop.getTour(t).addatPosition(1, best.getCity(2));
-			}
-		}
-		
+
 		//If the next location will be an intersection, add to All_Cities
 		if(Intersections.get(1).getType()=="Intersection"){
-			All_Cities.addCity(Intersections.get(1));
-			D_Matrix.updateAllMatrix();
+			
+			D_Matrix.updateAllMatrix(Intersections.get(1));
+			includeIvalue=true;
 		}
 		
 		//If there is no intersection, calculate duration to next city
@@ -722,7 +713,8 @@ public class EA implements myListener {
     //Event-handling and event-related methods
     @Override
 	public void atCity(AtEvent e){ 
-    	
+    	InterinNode=0;
+		InterinInter=0;
     	toDrivetoNode=0;
 		toDrivetoIntersection=0;
 		toDrivetoCity=0;
@@ -780,12 +772,12 @@ public class EA implements myListener {
 			double lat_ratio_start=(Nodes.get(1).getLatitude()-Intersections.get(0).getLatitude())/(Nodes.get(1).getLatitude()-Nodes.get(0).getLatitude());	
 			double lon_ratio_start=(Nodes.get(1).getLongitude()-Intersections.get(0).getLongitude())/(Nodes.get(1).getLongitude()-Nodes.get(0).getLongitude());
 			double avg_ratio_start= (lat_ratio_start+lon_ratio_start)/2;  
-			durations[0]=durations[0]*avg_ratio_start;
+			durations.set(0, durations.get(0)*avg_ratio_start);
 			
 			double lat_ratio_end=(Nodes.get(Nodes.size()-1).getLatitude()-Intersections.get(Intersections.size()-1).getLatitude())/(Nodes.get(Nodes.size()-1).getLatitude()-Nodes.get(Nodes.size()-2).getLatitude());	
 			double lon_ratio_end=(Nodes.get(Nodes.size()-1).getLongitude()-Intersections.get(Intersections.size()-1).getLongitude())/(Nodes.get(Nodes.size()-1).getLongitude()-Nodes.get(Nodes.size()-2).getLongitude());
 			double avg_ratio_end= (lat_ratio_end+lon_ratio_end)/2;
-			durations[durations.length-1]=durations[durations.length-1]*avg_ratio_end;			
+			durations.set(durations.size()-1, durations.get(durations.size()-1)*avg_ratio_end);			
 			if(All_Cities.checkForCities()>1){
 				int pos = All_Cities.PositionofCity(best.getCity(2));
 				All_Cities.getCity(pos).setCoordinates(Intersections.get(Intersections.size()-1).getLongitude(), Intersections.get(Intersections.size()-1).getLatitude());		
@@ -801,30 +793,20 @@ public class EA implements myListener {
 			
 			//Repair all tours in actual population
 			for ( int t =0; t<pop.populationSize();t++) {
-				//Delete last location
 				pop.getTour(t).deleteCity(0);
-				//add city object "intersection" if available
-				if(Intersections.get(1).getType()=="Intersection"){
-					pop.getTour(t).addatPosition(1,Intersections.get(1));
-				}
-				//if no "intersection" available set next city in best as next destination in all tours
-				else {
-					if(All_Cities.checkForCities()>1&&lastCityvisited==false) {
-					int delete=pop.getTour(t).positionofCity(best.getCity(2));
-					pop.getTour(t).deleteCity(delete);
-					pop.getTour(t).addatPosition(1, best.getCity(2));
-					}
-				}
 			}
+		
 
 			//delete last location in All_Cities
 			All_Cities.deleteCity(lastLocation);
+			
+			includeIvalue=false;
 			//Insert next "intersection" if available and do a matrix update for next intersection
 			if(Intersections.get(1).getType()=="Intersection"){
-				All_Cities.addCity(Intersections.get(1));
 				if(e.status==null||All_Cities.checkForCities()>2) {
 					try {
-						D_Matrix.updateAllMatrix();
+						D_Matrix.updateAllMatrix(Intersections.get(1));
+						includeIvalue=true;
 					} 
 					catch (Exception e1) {
 						e1.printStackTrace();
@@ -882,6 +864,7 @@ public class EA implements myListener {
     //If there is a change: Do route request, adapt data, inform simulator,
     //adapt tours and All_Cities,do matrix request, do toDriveto calculation
     //If there is no change : /adapt tours and All_Cities,do matrix request, do toDriveto calculation
+    /*
 	@Override
 	public void atIntersection(AtEvent e) { 
 		
@@ -914,14 +897,14 @@ public class EA implements myListener {
 			double lat_ratio_start=(Nodes.get(1).getLatitude()-Intersections.get(0).getLatitude())/(Nodes.get(1).getLatitude()-Nodes.get(0).getLatitude());	
 			double lon_ratio_start=(Nodes.get(1).getLongitude()-Intersections.get(0).getLongitude())/(Nodes.get(1).getLongitude()-Nodes.get(0).getLongitude());
 			double avg_ratio_start= (lat_ratio_start+lon_ratio_start)/2;  
-			durations[0]=durations[0]*avg_ratio_start;
+			//durations[0]=durations[0]*avg_ratio_start;
 			
 			double lat_ratio_end=(Nodes.get(Nodes.size()-1).getLatitude()-Intersections.get(Intersections.size()-1).getLatitude())/(Nodes.get(Nodes.size()-1).getLatitude()-Nodes.get(Nodes.size()-2).getLatitude());	
 			double lon_ratio_end=(Nodes.get(Nodes.size()-1).getLongitude()-Intersections.get(Intersections.size()-1).getLongitude())/(Nodes.get(Nodes.size()-1).getLongitude()-Nodes.get(Nodes.size()-2).getLongitude());
 			double avg_ratio_end= (lat_ratio_end+lon_ratio_end)/2;
-			durations[durations.length-1]=durations[durations.length-1]*avg_ratio_end;
+			//durations[durations.length-1]=durations[durations.length-1]*avg_ratio_end;
 			
-			int pos = All_Cities.PositionofCity(best.getCity(2));
+			int pos = All_Cities.PositionofCity(best.getCity(1));
 			All_Cities.getCity(pos).setCoordinates(Intersections.get(Intersections.size()-1).getLongitude(), Intersections.get(Intersections.size()-1).getLatitude());
 			
 			Nodes.set(0, Intersections.get(0)); 
@@ -959,8 +942,8 @@ public class EA implements myListener {
 				}
 			}
 			//Insert next "intersection" if available and do a matrix update for next intersection
-			if(best.getCity(1).getType()=="Intersection"){
-				All_Cities.addCity(Intersections.get(1));
+			if(Intersections.get(1).getType()=="Intersection"){
+				
 				try {
 					D_Matrix.updateAllMatrix();
 				} catch (Exception e1) {
@@ -1091,7 +1074,7 @@ public class EA implements myListener {
 	
 	}
 	
-	
+	*/
 	
 	//Event-handling method for GPS events
 	//Localizes position and allocates the 2 nodes we are in between
@@ -1100,7 +1083,10 @@ public class EA implements myListener {
 	@Override
 	public void GPS_Signal(AtEvent e)  {
 		System.out.println("Arrived at GPS: "+String.valueOf(e.location.getId()));
+		System.out.println(best.totalduration+"  "+best);
 		int GPSinNode=0;
+		includeIvalue=false;
+
 		EventCounter++;
 		toDrivetoIntersection=0;
 		toDrivetoCity=0;
@@ -1108,84 +1094,215 @@ public class EA implements myListener {
 		lastEvent=e;
 		lastEventTime= new TimeElement(e.getEventTime());
 
+		if(All_Cities.checkForCities()>1 && !(lastbest.getCity(1).getId().equals(best.getCity(1).getId()))) {
+	
+		System.out.println("WECHSEL!!!!!!!!!!!!!!!!!!!!!!!!!");
+			
+			Route route= new Route();
+			try {
+				route.WayFromTo(best);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			durations=route.Duration;
+			Nodes=route.Nodes_as_City;
+			Intersections=route.intersections;
+			
 		
+			//Adaped first and last duration value with duration approximation from first intersection to second node
+			//and penultimate node to last intersection 
+			//replace first and last node with first and last city object in "Intersection"
+			//Set coordinates of destination city of the route by using coordinates of last "intersection" 
+			double lat_ratio_start=(Nodes.get(1).getLatitude()-Intersections.get(0).getLatitude())/(Nodes.get(1).getLatitude()-Nodes.get(0).getLatitude());	
+			double lon_ratio_start=(Nodes.get(1).getLongitude()-Intersections.get(0).getLongitude())/(Nodes.get(1).getLongitude()-Nodes.get(0).getLongitude());
+			double avg_ratio_start= (lat_ratio_start+lon_ratio_start)/2;  
+			//durations[0]=durations[0]*avg_ratio_start;
+			
+			double lat_ratio_end=(Nodes.get(Nodes.size()-1).getLatitude()-Intersections.get(Intersections.size()-1).getLatitude())/(Nodes.get(Nodes.size()-1).getLatitude()-Nodes.get(Nodes.size()-2).getLatitude());	
+			double lon_ratio_end=(Nodes.get(Nodes.size()-1).getLongitude()-Intersections.get(Intersections.size()-1).getLongitude())/(Nodes.get(Nodes.size()-1).getLongitude()-Nodes.get(Nodes.size()-2).getLongitude());
+			double avg_ratio_end= (lat_ratio_end+lon_ratio_end)/2;
+			//durations[durations.length-1]=durations[durations.length-1]*avg_ratio_end;
+			
+			int pos = All_Cities.PositionofCity(best.getCity(1));
+			All_Cities.getCity(pos).setCoordinates(Intersections.get(Intersections.size()-1).getLongitude(), Intersections.get(Intersections.size()-1).getLatitude());
+			
+			Nodes.set(0, Intersections.get(0)); 
+			Nodes.set(Nodes.size()-1, Intersections.get(Intersections.size()-1));
+			//Inform simulator
+			RouteServiceEvent event= new RouteServiceEvent(this, Nodes,Intersections, durations,best,lastEventTime);
+			fireEvent(event);
+			//Adapt tours, delete last location and add actual GPS position
+			for ( int t =0; t<pop.populationSize();t++) {
+				pop.getTour(t).deleteCity(0);
+				pop.getTour(t).addatPosition(0,e.location);
+			}
+		
+	
+			//Delete last location and add actual GPS position in All_Cities
+			if(lastLocation.getType()=="GPS") {
+				All_Cities.deleteCity(lastLocation);
+			}
+			else {
+				for(int a=0;a<All_Cities.numberOfCities();a++) {
+					if(All_Cities.getCity(a).getId()==lastLocation.getId()) {
+							All_Cities.deleteCity(All_Cities.getCity(a));
+							break;
+					}
+				}
+			} 
+			All_Cities.addCity(e.location);		
+		
+			GPSinNode=0;
+			boolean abcd=true;
+			for(int a=GPSinNode;a<Nodes.size()-1;a++) {
+				
+					if(Nodes.get(a).id==Intersections.get(1).id) {
+						
+							InterinInter=1;
+							InterinNode=a;
+							includeIvalue=true;
+							abcd=false;
+							break;
+						
+					
+				}
+			
+				
+				
+				}
+			if(abcd==true) {
+				nomoreInters=true;
+			}
+			
+			if(Intersections.get(1).getType()=="Intersection"){
+				
+				try {
+					D_Matrix.updateAllMatrix(Intersections.get(1));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+			
+			 //Calculate duration to next Node (position in ArrayList=GPSinNode+1)
+			double latratio= (Nodes.get(GPSinNode+1).getLatitude()-e.getLatitude())/(Nodes.get(GPSinNode+1).getLatitude()-Nodes.get(GPSinNode).getLatitude());
+			double lonratio=(Nodes.get(GPSinNode+1).getLongitude()-e.getLongitude())/(Nodes.get(GPSinNode+1).getLongitude()-Nodes.get(GPSinNode).getLongitude());
+			double ratio= (latratio+lonratio)/2;
+			toDriveto("Node",GPSinNode,0,ratio);	
+			
+			//toDriveto calculation
+			//case 1
+			GPSinNode++;
+			if(OP_Stop==false&&nomoreInters==false)	{
+				
+				toDrivetoIntersection+=toDrivetoNode;
+				toDriveto("Intersection",GPSinNode,InterinNode,1);
+				
+			}
+			// case 2,3,4	
+			else {	
+				toDrivetoCity+=toDrivetoNode;
+				toDriveto("City",GPSinNode,durations.size(),1);					
+			}
+		
+			lastLocation=e.location;
+			lastbest= new Tour(best);
+		}
 		//Allocate the nodes we are in between through spanning a rectangle with coordinates and 
 		//analyze if we are located in this rectangle
-		
-		for( int i=0; i<Nodes.size()-1;i++) {	
-			double maxLat=0;
-			double minLat=0;
-			double maxLon=0;
-			double minLon=0;
-		
-			 maxLat= Math.max(Nodes.get(i).getLatitude(),Nodes.get(i+1).getLatitude());
-			 minLat= Math.min(Nodes.get(i).getLatitude(),Nodes.get(i+1).getLatitude());
-			 maxLon= Math.max(Nodes.get(i).getLongitude(),Nodes.get(i+1).getLongitude());
-			 minLon= Math.min(Nodes.get(i).getLongitude(),Nodes.get(i+1).getLongitude());
-			
-			if(e.getLatitude()<=maxLat&&e.getLatitude()>=minLat&&e.getLongitude()<=maxLon&&e.getLongitude()>=minLon) {
-				break;
-			}
-			GPSinNode++;  
-		}
-		
-		//Adapt tours, delete last location and add actual GPS position
-		for ( int t =0; t<pop.populationSize();t++) {
-			pop.getTour(t).deleteCity(0);
-			pop.getTour(t).addatPosition(0,e.location);
-		}
-	
-
-		//Delete last location and add actual GPS position in All_Cities
-		if(lastLocation.getType()=="GPS"||lastLocation.getType()=="Intersection") {
-			All_Cities.deleteCity(lastLocation);
-		}
 		else {
-			for(int a=0;a<All_Cities.numberOfCities();a++) {
-				if(All_Cities.getCity(a).getId()==lastLocation.getId()) {
-						All_Cities.deleteCity(All_Cities.getCity(a));
-						break;
-				}
-			}
-		} 
-		All_Cities.addCity(e.location);		
-	
-		 //Calculate duration to next Node (position in ArrayList=GPSinNode+1)
-		double latratio= (Nodes.get(GPSinNode+1).getLatitude()-e.getLatitude())/(Nodes.get(GPSinNode+1).getLatitude()-Nodes.get(GPSinNode).getLatitude());
-		double lonratio=(Nodes.get(GPSinNode+1).getLongitude()-e.getLongitude())/(Nodes.get(GPSinNode+1).getLongitude()-Nodes.get(GPSinNode).getLongitude());
-		double ratio= (latratio+lonratio)/2;
-		toDriveto("Node",GPSinNode,0,ratio);	
-		
-		//toDriveto calculation
-		//case 1
-		GPSinNode++;
-		if(OP_Stop==false&&All_Cities.checkForIntersection()>0)	{
-			int nextIntersection=0;
-			for(int l=1; l<Intersections.size();l++) {
-				for(int k=GPSinNode;k<Nodes.size();k++) {
-					if(Nodes.get(k).getId()==Intersections.get(l).getId()) { 
-						nextIntersection=k;  
-						break;	
-					}			
-				}
-				if(nextIntersection!=0) {
-					break;
-				}	
-			}
-			toDrivetoIntersection+=toDrivetoNode;
-			toDriveto("Intersection",GPSinNode,nextIntersection,1);
+			for( int i=0; i<Nodes.size()-1;i++) {	
+				double maxLat=0;
+				double minLat=0;
+				double maxLon=0;
+				double minLon=0;
 			
-		}
-		// case 2,3,4	
-		else {	
-			toDrivetoCity+=toDrivetoNode;
-			toDriveto("City",GPSinNode+1,durations.length,1);					
-		}
+				 maxLat= Math.max(Nodes.get(i).getLatitude(),Nodes.get(i+1).getLatitude());
+				 minLat= Math.min(Nodes.get(i).getLatitude(),Nodes.get(i+1).getLatitude());
+				 maxLon= Math.max(Nodes.get(i).getLongitude(),Nodes.get(i+1).getLongitude());
+				 minLon= Math.min(Nodes.get(i).getLongitude(),Nodes.get(i+1).getLongitude());
+				
+				if(e.getLatitude()<=maxLat&&e.getLatitude()>=minLat&&e.getLongitude()<=maxLon&&e.getLongitude()>=minLon) {
+					break;
+				}
+				GPSinNode++;  
+			}
+			boolean abcd=true;
+			for(int a=GPSinNode;a<Nodes.size()-1;a++) {
+				for(int aa=InterinInter;aa<Intersections.size()-1;aa++) {
+					if(Nodes.get(a).id==Intersections.get(aa).id) {
+						
+							InterinInter=aa;
+							InterinNode=a;
+							includeIvalue=true;
+							abcd=false;
+							break;
+						
+					}
+				}
+				if(abcd==false) {
+					break;
+				}
+				
+				}
+			if(abcd==true) {
+				nomoreInters=true;
+			}
+			if(Intersections.get(InterinInter).getType()=="Intersection") {
+				try {
+					D_Matrix.updateAllMatrix(Intersections.get(InterinInter));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+			//Adapt tours, delete last location and add actual GPS position
+			for ( int t =0; t<pop.populationSize();t++) {
+				pop.getTour(t).deleteCity(0);
+				pop.getTour(t).addatPosition(0,e.location);
+			}
 		
-		lastLocation=e.location;
-		System.out.println("Best duration: "+best.getDuration()+" Best: "+best.toString());
-		System.out.println();
-
+	
+			//Delete last location and add actual GPS position in All_Cities
+			if(lastLocation.getType()=="GPS") {
+				All_Cities.deleteCity(lastLocation);
+			}
+			else {
+				for(int a=0;a<All_Cities.numberOfCities();a++) {
+					if(All_Cities.getCity(a).getId()==lastLocation.getId()) {
+							All_Cities.deleteCity(All_Cities.getCity(a));
+							break;
+					}
+				}
+			} 
+			All_Cities.addCity(e.location);		
+		
+			 //Calculate duration to next Node (position in ArrayList=GPSinNode+1)
+			double latratio= (Nodes.get(GPSinNode+1).getLatitude()-e.getLatitude())/(Nodes.get(GPSinNode+1).getLatitude()-Nodes.get(GPSinNode).getLatitude());
+			double lonratio=(Nodes.get(GPSinNode+1).getLongitude()-e.getLongitude())/(Nodes.get(GPSinNode+1).getLongitude()-Nodes.get(GPSinNode).getLongitude());
+			double ratio= (latratio+lonratio)/2;
+			toDriveto("Node",GPSinNode,0,ratio);	
+			
+			//toDriveto calculation
+			//case 1
+			GPSinNode++;
+			if(OP_Stop==false&&nomoreInters==false)	{
+				
+				toDrivetoIntersection+=toDrivetoNode;
+				toDriveto("Intersection",GPSinNode,InterinNode,1);
+				
+			}
+			// case 2,3,4	
+			else {	
+				toDrivetoCity+=toDrivetoNode;
+				toDriveto("City",GPSinNode,durations.size(),1);					
+			}
+			
+			lastLocation=e.location;
+			lastbest= new Tour(best);
+			System.out.println("Best duration: "+best.getDuration()+" Best: "+best.toString());
+			System.out.println();
+		}
 	}
 	
     
@@ -1218,7 +1335,7 @@ public class EA implements myListener {
 			//Loop from start to the end of durations[] and add all values to toDrivetoCity with correct time factor, If hour is overlapsed, calculate ratio of time in each hour and assign the to the values
 			//add 1 hour (Maths.intervall Millis) to nextStep, incrase hour, check if hour matches special cases
 	    	for(int a=start; a<end;a++) {
-	    		if(sumDurTF+durations[a]*1000*Maths.getFaktor(hour,step)>nextStep) {
+	    		if(sumDurTF+durations.get(a)*1000*Maths.getFaktor(hour,step)>nextStep) {
 	    			long ttnh=nextStep-sumDurTF;
 	    			toDrivetoCity+=Maths.round(ttnh/1000,3);
 	    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour,step)),0);
@@ -1236,7 +1353,7 @@ public class EA implements myListener {
 	    			boolean finish=false;
 	    			do {
 	    				
-	    				long y=(long)(durations[a]*1000)-x;
+	    				long y=(long)(durations.get(a)*1000)-x;
 	    				if((int)(y*Maths.getFaktor(hour,step)/Maths.intervall)==0) {
 	    					sumDurTF+=y*Maths.getFaktor(hour,step);
 	    					toDrivetoCity+=(y/1000)*Maths.getFaktor(hour,step);
@@ -1264,8 +1381,8 @@ public class EA implements myListener {
 	    		//add full duration hour depending value
 	    		else {
 	    			
-	    			toDrivetoCity+=durations[a]*Maths.getFaktor(hour,step);
-	    			sumDurTF+=durations[a]*Maths.getFaktor(hour,step)*1000;
+	    			toDrivetoCity+=durations.get(a)*Maths.getFaktor(hour,step);
+	    			sumDurTF+=durations.get(a)*Maths.getFaktor(hour,step)*1000;
 	    			
 	    		}
 
@@ -1296,7 +1413,7 @@ public class EA implements myListener {
 			//Loop from start to the end of durations[] and add all values to toDrivetoCity with correct time factor, If hour is overlapsed, calculate ratio of time in each hour and assign the to the values
 			//add 1 hour (Maths.intervall Millis) to nextStep, incrase hour, check if hour matches special cases
 	    	for(int a=start; a<end;a++) {
-	    		if(sumDurTF+durations[a]*1000*Maths.getFaktor(hour,step)>nextStep) {
+	    		if(sumDurTF+durations.get(a)*1000*Maths.getFaktor(hour,step)>nextStep) {
 	    			long ttnh=nextStep-sumDurTF;
 	    			toDrivetoIntersection+=Maths.round(ttnh/1000,3);
 	    			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour,step)),0);
@@ -1314,7 +1431,7 @@ public class EA implements myListener {
 	    			boolean finish=false;
 	    			do {
 	    				
-	    				long y=(long)(durations[a]*1000)-x;
+	    				long y=(long)(durations.get(a)*1000)-x;
 	    				if((int)(y*Maths.getFaktor(hour,step)/Maths.intervall)==0) {
 	    					sumDurTF+=y*Maths.getFaktor(hour,step);
 	    					toDrivetoIntersection+=(y/1000)*Maths.getFaktor(hour,step);
@@ -1343,8 +1460,8 @@ public class EA implements myListener {
 	    		//add full duration hour depending value
 	    		else {
 	    			
-	    			toDrivetoIntersection+=durations[a]*Maths.getFaktor(hour,step);
-	    			sumDurTF+=durations[a]*Maths.getFaktor(hour,step)*1000;
+	    			toDrivetoIntersection+=durations.get(a)*Maths.getFaktor(hour,step);
+	    			sumDurTF+=durations.get(a)*Maths.getFaktor(hour,step)*1000;
 	    			
 	    		}
 
@@ -1358,7 +1475,7 @@ public class EA implements myListener {
 	    	long nextStep=lastEventTime.getMilliatNextHour();
 	    	long sumDurTF=lastEventTime.startInMilli;   	
 	    	int step=EA.lastEventTime.getStep();			
-			if(sumDurTF+durations[start]*ratio*1000*Maths.getFaktor(hour,step)>nextStep) {
+			if(sumDurTF+durations.get(start)*ratio*1000*Maths.getFaktor(hour,step)>nextStep) {
 				long ttnh=nextStep-sumDurTF;
     			toDrivetoNode+=Maths.round(ttnh/1000,3);
     			long x =(long)Maths.round((ttnh/Maths.getFaktor(hour,step)),0);
@@ -1376,7 +1493,7 @@ public class EA implements myListener {
     			boolean finish=false;
     			do {
     				
-    				long y=(long)(durations[start]*ratio*1000)-x;
+    				long y=(long)(durations.get(start)*ratio*1000)-x;
     				if((int)(y*Maths.getFaktor(hour,step)/Maths.intervall)==0) {
     					sumDurTF+=y*Maths.getFaktor(hour,step);
     					toDrivetoNode+=(y/1000)*Maths.getFaktor(hour,step);
@@ -1402,7 +1519,7 @@ public class EA implements myListener {
 			
 			}
     		else {
-    			toDrivetoNode+=durations[start]*ratio*Maths.getFaktor(hour,step);	
+    			toDrivetoNode+=durations.get(start)*ratio*Maths.getFaktor(hour,step);	
     		}
 			toDrivetoNode=Maths.round(toDrivetoNode, 2);	    	
      	}  	
@@ -1414,7 +1531,10 @@ public class EA implements myListener {
 	//activates listener method in simulator class
 	public void fireEvent(RouteServiceEvent e)
 	{
+
 		listenerList.get(0).EAdidRequest(e);
+		
+	
 	}
 	
 	//Further supporting methods

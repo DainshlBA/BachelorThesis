@@ -150,6 +150,9 @@ public class Tour {
 	    	totalduration =EA.toDrivetoCity+EA.toDrivetoIntersection;
 	    
 	    	//ABfrage......... fehlt
+	       	
+	    	//Check if sum overlapsed an hour and other special cases
+    	
 	    	
 	    	if(sumMilli+totalduration*1000>nextStep) { 
 	    		step++;
@@ -198,9 +201,9 @@ public class Tour {
 	    	
 	    	// If situation requires a Intersection-value of the "Intersection" matrix range 
 	    	//Second part of calculation
-	    	if(EA.OP_Stop==false&&this.getCity(1).getType()=="Intersection") {
+	    	if(EA.includeIvalue==true) {
 	    		//Get ID for selecting correct value in intersection matrix range
-	    		int a=Integer.parseInt(this.getCity(2).getId());
+	    		int a=Integer.parseInt(this.getCity(1).getId());
 	    		//General calculation process
 				 if(sumMilli+D_Matrix.matrix[D_Matrix.CreatingnumOfCities][a]*Maths.getFaktor(hour,step)*1000>nextStep) {
 						long ttnh=nextStep-sumMilli;
@@ -254,19 +257,12 @@ public class Tour {
 						
 					}
 	    	}
-			//Set index for summation of durations of remaining cities
-	    	if(EA.lastCityvisited==false) {
-				if(this.getCity(1).getType()=="Intersection") {
-	    		index=2;
-				}
-				else if(this.getCity(1).getType()=="City") {
-	    		index=1;
-				}
+		
 	   
 	    	//Calculation duration of remaining cities and back to city we've started from,
 	    	// analogue calculation process
 			//third part of calculation
-				for (int cityIndex=index; cityIndex < tourSize(); cityIndex++) {
+				for (int cityIndex=1; cityIndex < tourSize(); cityIndex++) {
 					City fromCity = getCity(cityIndex);
 					City destinationCity;	
 					if(cityIndex+1 < tourSize()){   
@@ -329,7 +325,7 @@ public class Tour {
 						sumMilli+=D_Matrix.matrix[a][b]*1000*Maths.getFaktor(hour,step);	
 					}
 				}
-	    	}
+	    	
 	    	
 	    	totalduration=Maths.round(totalduration, 3);
 	    	return totalduration;
