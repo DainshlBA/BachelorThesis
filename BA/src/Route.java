@@ -2,6 +2,8 @@
 
 import java.util.ArrayList;
 
+import javax.lang.model.type.IntersectionType;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 //Class that initiates Route-Request
@@ -14,6 +16,8 @@ public class Route {
 	ArrayList<City> Nodes_as_City= new ArrayList<City>();
 	ArrayList<City> intersections= new ArrayList<City>();
 	JSONObject Way;
+	static ArrayList<Integer> faults= new ArrayList<Integer>();
+	static boolean checkmistake=false;
 
 //METHODS:
 	// Initiates Route Request with Send_Request class
@@ -54,7 +58,6 @@ public class Route {
 	
 		//Convert Node Ids in City Objects
 		Nodes_as_City=Send_Request.ConvertAPI(Nodes);
-		
 
 		//Create City objects of type "Interesection" from JSON Array "Intersections" in JSONObject "steps"
 		//Receive longitude and latitude from location in JSONArray
@@ -150,10 +153,9 @@ public class Route {
 			Duration.add(duration.getDouble(a));
 			}
 		}
-	
+	System.out.println();
 		//Convert Node Ids in City Objects
 		Nodes_as_City=Send_Request.ConvertAPI(Nodes);
-		
 
 		//Create City objects of type "Interesection" from JSON Array "Intersections" in JSONObject "steps"
 		//Receive longitude and latitude from location in JSONArray

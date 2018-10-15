@@ -35,6 +35,12 @@ public class Population {
 	     }
 	
 	 }
+	 public Population(Population pop) {
+		 tours= new Tour[pop.tours.length-1];
+		 for(int a=0; a<tours.length;a++) {
+			 tours[a]= pop.tours[a];
+		 }
+	 }
 	 
 	//METHODS:
 	 //Save a tour at certain position in tours
@@ -57,7 +63,7 @@ public class Population {
 	         for (int j = i + 1; j < tours.length; j++) {
 	             if (tours[i].getDuration() < tours[j].getDuration()) {
 	                 temp = new Tour(tours[j]);
-	                 tours[j] = new Tour(tours[i]);
+	                 tours[j] = new Tour(tours[i]);	    
 	                 tours[i] = new Tour(temp);
 	             }
 	         }

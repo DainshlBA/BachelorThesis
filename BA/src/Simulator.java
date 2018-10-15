@@ -97,7 +97,18 @@ int GPScounter;
 		upcomingEvents = new ArrayList<AtEvent>();
 		pastEvents = new ArrayList<AtEvent>();
 		now=e.eTime;
-		
+		for(int a=0;a<duration.size();a++) {
+			System.out.print(" "+duration.get(a));
+		}
+		System.out.println();
+		for(int a=0;a<Nodes.size();a++) {
+			System.out.print("  "+Nodes.get(a));
+		}
+		System.out.println();
+		for(int a=0;a<Intersection.size();a++) {
+			System.out.print("  "+Intersection.get(a));
+		}
+		System.out.println();
 		createEvents();
 	}
 
@@ -183,7 +194,7 @@ int GPScounter;
 	
 		int numberofGPSEvents= (int)((durationSumZFEA)/GPS_frequency);
 		double eventTimeSum=0;
-		for(int events=0; events<numberofGPSEvents;events++) { //ACHTUNG, -1, keine Begründung bis jetzt
+		for(int events=0; events<numberofGPSEvents;events++) { 
 			eventTimeSum+=GPS_frequency;
 			double diffrence=0;
 			double sum_d=0;
@@ -236,6 +247,7 @@ int GPScounter;
 				upcomingEvents.add(ev);
 				break;
 			}
+		
 			//Create Intersection events
 //			else {
 //				for(int node=1;node<Nodes.size();node++) {
@@ -255,7 +267,23 @@ int GPScounter;
 //					}	
 //				}
 //			}	
+			
+		
+
 		}
+		TimeElement e1= new TimeElement(upcomingEvents.get(upcomingEvents.size()-1).EventTime);
+		TimeElement e2= new TimeElement(upcomingEvents.get(upcomingEvents.size()-2).EventTime);
+		
+		if(e1.start.getTime().getSeconds()==e2.start.getTime().getSeconds()) {
+			upcomingEvents.remove(upcomingEvents.size()-2);
+		}
+		for(int a=0;a<GammaDuration.size();a++) {
+			System.out.print(" "+GammaDuration.get(a));
+		}
+		System.out.println();
+		 for(int a=0;a<Simulator.upcomingEvents.size();a++) {
+	 		  System.out.println(Simulator.upcomingEvents.get(a));
+	 	  }
 	}
 	
 	//add Events chronologically to upcoming event list

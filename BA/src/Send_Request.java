@@ -4,6 +4,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -84,27 +85,43 @@ public class Send_Request {
 		for(int i=0;i<nodes.length;i++){												
 			String url="https://w-bdlab-s1.hs-karlsruhe.de/osm/api/0.6/node/";
 			url+=nodes[i];
+		     OSMHandler ourSpecialHandler = new OSMHandler();
+		     InputStream in=new InputStream() {
+				
+				@Override
+				public int read() throws IOException {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+			};
+		     boolean check=false;
 			  try
 		        {	           
 		            URL urlObject = new URL(url);		           
-		            InputStream in = urlObject.openStream();
-		            @SuppressWarnings("deprecation")
-					XMLReader xr = XMLReaderFactory.createXMLReader();	        
-		            OSMHandler ourSpecialHandler = new OSMHandler();
+		            in = urlObject.openStream();
+		            check=true;
+		           
+					
+
+		        }
+		        catch(FileNotFoundException ioe)
+		        {
+		        	ioe.printStackTrace();
+		        
+		        }
+		       finally {
+		    	   if(check==true) {
+		    		   @SuppressWarnings("deprecation")
+		    	   XMLReader xr = XMLReaderFactory.createXMLReader();	        
 		            xr.setContentHandler(ourSpecialHandler);	           
 		            InputSource inSource = new InputSource(in); 
 		            xr.parse(inSource);
 		            Nodes.add(ourSpecialHandler.getNode());
-
-		        }
-		        catch(IOException ioe)
-		        {
-		            ioe.printStackTrace();
-		        }
-		        catch(SAXException se)
-		        {
-		            se.printStackTrace();
-		        }
+		    	   }
+		    	   else {
+		    		   Nodes.add(Nodes.get(i-1));
+		    	   }
+		       }
 		}
 		return Nodes;
 	}

@@ -63,6 +63,7 @@ public class readFile {
 	
 		for(int j=0;j<D_Matrix.CreatingnumOfCities;j++){
 			for(int k=0;k<D_Matrix.CreatingnumOfCities;k++) {
+				System.out.println(k);
 				String b= s.next();
 //				if(k==D_Matrix.CreatingnumOfCities-1) {
 //					erg[j][k]=0;
@@ -202,10 +203,13 @@ public class readFile {
 		coordinates= new double[countlines][2];
 		
 		for(int j=0;j<countlines;j++){
+			System.out.println("countlines: "+j);
 		String b= s.next();
 		String c=s.next();
 		coordinates[j][0]=Double.parseDouble(b);
+		System.out.print(" "+coordinates[j][0]);
 		coordinates[j][1]=Double.parseDouble(c);
+		System.out.print(" "+coordinates[j][1]);
 		}
 		
 		s.close();

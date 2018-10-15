@@ -21,7 +21,7 @@ public class D_Matrix {
 	// and add to All_Cities class
 	public static void createAll_Cities (){		
 			double[][] zwischenmatrix;
-			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\TTTEST";
+			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\klein.txt";
 			readFile rf= new readFile(s);
 			rf.readingFile();
 			CreatingnumOfCities=rf.getNumberofCities();		
@@ -42,7 +42,7 @@ public class D_Matrix {
 			readFile rf= new readFile();
 			try {		
 				if(read) {
-					matrix=rf.readingMatrix("C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Matrix_RegionKraichtal40.txt");
+					matrix=rf.readingMatrix("C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\Matrix_klein.txt");
 				}
 				else {
 					matrix=Send_Request.createBasicMatrix();
@@ -61,10 +61,12 @@ public class D_Matrix {
 	// Add hour value to each of the 24 matrixes
 	public static void updateAllMatrix(City Kreuzung) throws Exception {
 		double[]IntersectionMatrix=Send_Request.IntersectionMatrix(Kreuzung);
-		
+		System.out.println("Intersectionwerte");
 		for(int i=0;i<matrix.length-1;i++) {
 			matrix[matrix.length-1][i]=IntersectionMatrix[i];
+			System.out.print(matrix[matrix.length-1][i]+" ");
 		}
+		System.out.println();
 	
 	}
 }

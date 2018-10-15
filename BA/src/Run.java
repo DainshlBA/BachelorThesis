@@ -212,15 +212,15 @@ static TimeElement start;
 			csvWriter3 = new CSVWriter(new FileWriter(dynamic_InitialTour,true)); 
 			csvWriter3.writeNext(header2);
 		}
+		for(int a =0;a<EA.pop.populationSize();a++) {
+			System.out.println(EA.pop.getTour(a).getDuration()+" "+EA.pop.getTour(a));
+		}
 		
-		
-		
+		/*
 		
       //Start dynamic simulation
  	  Optimierer.start();
- 	  for(int a=0;a<Simulator.upcomingEvents.size();a++) {
- 		  System.out.println(Simulator.upcomingEvents.get(a));
- 	  }
+ 	 
  	  long checktime=EA.dynamicStartinMilli;
  	  long MilliToWait=300000;
  	  
@@ -273,7 +273,7 @@ static TimeElement start;
 	      csvWriter3.writeNext(SE);;
 	   	
 	   		//csvWriter3.close();
-	  
+	  */
    }    
 }
 
