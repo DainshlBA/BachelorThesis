@@ -57,10 +57,10 @@ public class Run {
 		start.setStartTimetoHour(hourstart);
 		
 		//Set file name of all .csv files
-		String staticpreRun="./"+"staticpreRun111"+".csv";
-		String dynamic_RealTour="./"+"dynamic_RealTour111"+".csv";
-		String dynamic_InitialTour="./"+"dynamic_InitialTour111"+".csv";
-		String initialDataofRealTourSimulation="./"+"initialDataofDynamic111"+".csv";
+		String staticpreRun="./"+"staticpreRun"+".csv";
+		String dynamic_RealTour="./"+"dynamic_RealTour"+".csv";
+		String dynamic_InitialTour="./"+"dynamic_InitialTour"+".csv";
+		String initialDataofRealTourSimulation="./"+"initialDataofDynamicSimulation"+".csv";
 		
 		
 		//!!!!
