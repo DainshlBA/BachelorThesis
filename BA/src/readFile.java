@@ -108,38 +108,7 @@ public class readFile {
 		return tour;
 	}
 	
-	//Reads the simulation factors of the real tour simulation to use them for simulating the static initial tour
-//	public Faktor[] readGammaFaktoren(String p) {
-//		Faktor []fak ;
-//		try{
-//			File ff= new File(p);
-//			br= new BufferedReader(new FileReader(ff));
-//			s = new Scanner(ff);
-//			
-//		}
-//		catch(FileNotFoundException e){
-//			System.out.print("File not found");
-//		}
-//		String line="";
-//
-//		try{
-//			while((line=br.readLine())!=null){
-//				countlines+=1;
-//			}
-//		}
-//		catch(IOException ioex){
-//			System.out.print("Error reading file");
-//		}
-//		String b;
-//		for(int a=0;a<countlines;a++) {
-//			b=s.next();
-//		
-//		}
-//
-//		s.close();
-//		return fak;
-//	}
-	
+	//Reads the time factors of the real tour simulation to use them for simulating the static initial tour
 	public Faktor[] readFaktoren(String p) {
 	
 		try{

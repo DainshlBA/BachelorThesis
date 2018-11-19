@@ -119,7 +119,7 @@ public class Population {
 		
 	     for (int i = 1; i < populationSize(); i++) {
 	    	 if(getTour(i)!=null) {
-	    		 if (fittest.getFitness() <= getTour(i).getFitness()) {
+	    		 if (fittest.getDuration() > getTour(i).getDuration()) {
 	             fittest = getTour(i);
 	    		 }
 	         }

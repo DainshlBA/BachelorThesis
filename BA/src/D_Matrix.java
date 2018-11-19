@@ -21,7 +21,7 @@ public class D_Matrix {
 	// and add to All_Cities class
 	public static void createAll_Cities (){		
 			double[][] zwischenmatrix;
-			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\klein.txt";
+			String s= "C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\TTTEST";
 			readFile rf= new readFile(s);
 			rf.readingFile();
 			CreatingnumOfCities=rf.getNumberofCities();		

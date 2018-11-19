@@ -189,7 +189,7 @@ int GPScounter;
 			durationSumZFEA+=GammaDuration.get(a);
 		}
 	
-		//Create GPS Event every 5 Seconds
+		//Create GPS Event every x Seconds (GPS_Frequenz)
 		//Get coordinates through approximation: Localize the two nodes you're in between through comparison of sum of event time with sum of duration values
 	
 		int numberofGPSEvents= (int)((durationSumZFEA)/GPS_frequency);
@@ -221,6 +221,7 @@ int GPScounter;
 			double newlon=Maths.round((lon2-lon1)*ratio+lon1, 7);
 			City GPS = new City("G"+Integer.toString(GPScounter),"GPS",newlon,newlat);
 			AtEvent ev= new AtEvent(this,GPS,now.startInMilli+(long)(eventTimeSum*1000));
+			
 			upcomingEvents.add(ev);
 			GPScounter++;
 			
@@ -240,36 +241,13 @@ int GPScounter;
 					ev.status="Erste Stadt wieder erreicht";
 				}
 				//add status if we reached last city
-				else if(All_Cities.checkForCities()==2) {
-					ev.status="Letzte Stadt erreicht";
+				else if(All_Cities.checkForCities()==3) {
+					ev.status="Operatoren-Stop";
 				}
 			
 				upcomingEvents.add(ev);
 				break;
 			}
-		
-			//Create Intersection events
-//			else {
-//				for(int node=1;node<Nodes.size();node++) {
-//					sumIntD+=GammaDuration[node-1];   
-//					
-//					if(Intersection.get(inters).getId()==Nodes.get(node).getId()) { 
-//						
-//							AtEvent ev= new AtEvent(this,Intersection.get(inters),(long)(now.startInMilli+(sumIntD*1000)));
-//							//add status if we reached last Intersection of route to penultimate city
-//							
-//							if(All_Cities.checkForCities()==3 &&Intersection.get(inters+1).getType()=="City") {
-//								ev.status="Operatoren-Stop";
-//							}
-//						
-//							addEventinList(ev);
-//							break;	
-//					}	
-//				}
-//			}	
-			
-		
-
 		}
 		TimeElement e1= new TimeElement(upcomingEvents.get(upcomingEvents.size()-1).EventTime);
 		TimeElement e2= new TimeElement(upcomingEvents.get(upcomingEvents.size()-2).EventTime);

@@ -45,7 +45,8 @@ public class Maths {
 	
 	
 	
-	
+	//Reads text file with factors
+	// Calculatues length of an intervall by number of given factors, possibilty of ignoring several factors at the end because otherwise no smooth intervall lenght (in minutes) can be created
 	public static void createFaktoren() {
 		readFile rf = new readFile();
 		
@@ -54,7 +55,7 @@ public class Maths {
 		intervall=(60/(faktor.length/24))*60*1000;
 		Simulationsfaktor= new Faktor[faktor.length];
 		
-		if(Run.initialtest==false) {
+		if(Run.initialtest==false) { //Calculates simulation factors with Gamma-function
 			for(int a=0; a<faktor.length;a++) {
 				
 				boolean accept = false;
@@ -110,10 +111,9 @@ public class Maths {
 			    }  
 			}
 		}
-		else {
+		else { //reads additional text file with simulationfactors
 			readFile rf2 = new readFile();
 			String path2="C:\\Users\\BADai\\git\\BachelorThesis\\BA\\src\\GFaktoren.txt";
-			//SimulationsFaktoren=rf2.readGammaFaktoren(path2);
 		}
 	}
 }

@@ -12,12 +12,12 @@ public class EA implements myListener {
 	//Properties
 	static long dynamicStartinMilli;
 	static boolean testinitial=false;
-	static boolean readMatrix=true;
+	static boolean readMatrix=false;
 	
 	//EA parameters
     static int numberofCities;
 	static int popSize=20;			
-	static int iterations1=10000;
+	static int iterations1=1000;
 	static int iterations2=0;
 	static long timeStop=0;
 	static double mutationRate =0.7;
@@ -56,7 +56,7 @@ public class EA implements myListener {
 	static ArrayList <Double> durations;
 	
 	//Eventhandling and duration calculation
-	static int GPS_frequency=5;
+	static int GPS_frequency=8;
 	static int EventCounter=0;
 	static Tour best;
 	static Tour lastbest;
@@ -97,7 +97,8 @@ public class EA implements myListener {
 	
 	//Evolve population by using recombination, mutation, selection and replacing operators
 	//Initializes first population
-	//If true: Initialize first population and generate individuals
+	//testinitial: true -> Test an existing solution in dynamic environment
+	//selfcreation: true -> Create a population with only one already known solution
 	public void evolvePopulation(boolean initilize, boolean selfCreation) {
 	    	if(testinitial==false) {  
 	    		if(OP_Stop==false) {	
@@ -206,7 +207,7 @@ public class EA implements myListener {
 	    	      
 	    	    
 	    	    
-	    	       //Reinsertion with reinsertion rate and generation gap
+	    	       //Reinsertion with reinsertion rate and generation gap, compare solution with Jaccard coefficient 
 	    	       pop.rankPopulation();
 	    	  
 	    	       newOffsprings.rankPopulation();
@@ -500,7 +501,7 @@ public class EA implements myListener {
    	
 	    	}
 	    	
-	    	int number1 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities;				//Create two random positions that should be swapped
+	    	int number1 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities;
 			int number2 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities;
 	    	while(number1==number2) { 		  							
 	    		number1 = (int) ((tour.tourSize()-blockedCities) * Math.random())+blockedCities;
@@ -553,7 +554,7 @@ public class EA implements myListener {
 			int endPos= Math.max(number1, number2);			
 			
 			
-	    	int insertPos=(int) (Math.random() * (tour.tourSize()-(endPos-startPos)-blockedCities))+blockedCities; 	//create random position for insertion
+	    	int insertPos=(int) (Math.random() * (tour.tourSize()-(endPos-startPos)-blockedCities))+blockedCities; 	
 	    	int zaehler=0;				
 	  
 	    	for(int i=blockedCities; i<tour.tourSize();i++) { 							
@@ -680,10 +681,10 @@ public class EA implements myListener {
     //Sets simulation process to run=true
     //Start dynamic algorithm and process
     public void start() throws Exception {
-    	START=true;
+    	START=true; //Starts dynamic process
+    	//Get data of the route
     	Route route= new Route();
 		lastEventTime= Run.start; 
-	//	blockedCities=2;
 		route.WayFromTo(best);
 		durations=route.Duration;
 		EventCounter++;
@@ -735,7 +736,7 @@ public class EA implements myListener {
 					InterinInter=1;
 					InterinNode=a;
 					intermediate=Intersections.get(InterinInter);
-					includeIvalue=true;
+					includeIvalue=true;// Signals if we still must include an intersection matrix value in calculation process, Just happens in atCity Event if no intersections exists on the route (barley never the case)
 					abcd=false;
 					break;
 			}
@@ -749,10 +750,10 @@ public class EA implements myListener {
 		
 
 		//If the next location will be an intersection, add to All_Cities
-		if(Intersections.get(1).getType()=="Intersection"){
+		if(includeIvalue){
 			
 			D_Matrix.updateAllMatrix(Intersections.get(1));
-			includeIvalue=true;
+			
 		}
 		
 		//If there is no intersection, calculate duration to next city
@@ -801,13 +802,16 @@ public class EA implements myListener {
     //Event-handling and event-related methods
     @Override
 	public void atCity(AtEvent e){ 
-    	InterinNode=0;
-		InterinInter=0;
+    	//Reset variables
+    	
+    	InterinNode=0;//Position of next intersection in Node-Array
+		InterinInter=0;//Position of next Intersection in Intersection-Array
     	toDrivetoNode=0;
 		toDrivetoIntersection=0;
 		toDrivetoCity=0;
 		EventCounter++;
 		nomoreInters=false;
+		//Get all data of new route
 		Route route= new Route();
 		lastEvent=e;
 		lastEventTime= new TimeElement(e.getEventTime());	
@@ -817,9 +821,17 @@ public class EA implements myListener {
 		System.out.println("best: "+ best);
 		Tour lastRequest=null;
 		
-		//Turn of dynamic algorithm when we are back at our starting city
+		//Run.runs: Turn of dynamic simulation when we are back at our starting city 
+		//OP_Stop: Turn of evolutionary algorithm if route changes aren't possible anymore
+		//lastcityvisited: We are on the route back to the starting city
 		if(e.status=="Erste Stadt wieder erreicht") {
 			Run.runs=false;
+		}
+		if(e.status=="Operatoren-Stop") {
+			OP_Stop=true;
+			lastCityvisited=true;
+
+			System.out.println("OP Stop//");
 		}
 		if(e.status=="Letzte Stadt erreicht") {
 			lastCityvisited=true;
@@ -890,12 +902,9 @@ public class EA implements myListener {
 				pop.getTour(t).addatPosition(0, e.location);
 			}
 		
-System.err.println("lastlocation: "+lastLocation);
 			//delete last location in All_Cities
 			All_Cities.deleteCity(lastLocation);
-			System.out.println("NodesSize "+Nodes.size());
-			System.out.println("no more inters: "+ nomoreInters);
-			System.out.println("OP_Stop: "+ OP_Stop);
+
 			boolean abcd=true;
 			for(int a=1;a<Nodes.size()-1;a++) {
 				if(nomoreInters||OP_Stop) {
@@ -906,34 +915,31 @@ System.err.println("lastlocation: "+lastLocation);
 						InterinInter=1;
 						InterinNode=a;
 						intermediate=Intersections.get(InterinInter);
-						includeIvalue=true;
+						includeIvalue=true;// Signals if we still must include an intersection matrix value in calculation process, Just happens in atCity Event if no intersections exists on the route (barley never the case)
 						abcd=false;
 						break;
 				}
 			
 				
 				
-				}
+			}
 			if(abcd==true) {
 				nomoreInters=true;
 			}
 			
 			
-			includeIvalue=false;
-			System.out.println(Intersections.get(1).getType()=="Intersection");
 			//Insert next "intersection" if available and do a matrix update for next intersection
-			if(Intersections.get(1).getType()=="Intersection"){
-				if(OP_Stop==false) {
+		
+				if(OP_Stop==false&&includeIvalue) {
 					try {
 						D_Matrix.updateAllMatrix(Intersections.get(1));
-						includeIvalue=true;
 						System.out.println("HALLO");
 					} 
 					catch (Exception e1) {
 						e1.printStackTrace();
 					}
 				}
-			}	
+				
 	
 			// toDriveto values calculation
 			
@@ -974,18 +980,11 @@ System.err.println("lastlocation: "+lastLocation);
 		} 
 		
 		lastbest=new Tour(best);
-		System.out.println("Intermediate: "+ intermediate);
-		System.out.println("InterinNode: "+InterinNode);
-		System.out.println("InterinInter: "+InterinInter);
-		System.out.println("No more inters: "+ nomoreInters);
 		System.out.println("Best duration: "+best.getDuration()+" Best: "+best.toString());
 		
     }
     
     
-    
-  
-	
 	//Event-handling method for GPS events
 	//Localizes position and allocates the 2 nodes we are in between
 	//adapts tours in population and All_Cities
@@ -994,13 +993,11 @@ System.err.println("lastlocation: "+lastLocation);
 	public void GPS_Signal(AtEvent e)  {
 		System.out.println("Arrived at GPS: "+String.valueOf(e.location.getId()));
 		System.out.println(best.totalduration+"  "+best);
-		doupdate=false;
-		int GPSinNode=0;
+		doupdate=false; //variable that excecutes an update of the intersection matrix values
+		int GPSinNode=0; //position of GPS-Signal in NodeArray, GPS Signals are defined by two Nodes that surround them. One located "behind", one located "in front" of us. GPSinNode represents the Node "Behind" us.
 		includeIvalue=false;
-		System.err.println("lastlocation: "+lastLocation);
 		if(e.status=="Operatoren-Stop") {
 			OP_Stop=true;
-			System.out.println("OP Stop//");
 		}
 		EventCounter++;
 		toDrivetoIntersection=0;
@@ -1009,11 +1006,12 @@ System.err.println("lastlocation: "+lastLocation);
 		lastEvent=e;
 		lastEventTime= new TimeElement(e.getEventTime());
 
+		//CASE 1:Compares the best solution of the last event, with the best solution of the actual event. A new request gets necessary if the next city of the actual solution differs from the old solutions next city 
 		if(OP_Stop==false&&!(lastbest.getCity(1).getId().equals(best.getCity(1).getId()))) {
-	
-		System.out.println("WECHSEL!!!!!!!!!!!!!!!!!!!!!!!!!");
-		System.out.println("lastbest: "+lastbest);
-		System.err.println("best: "+best);
+//	
+//		System.out.println("WECHSEL!!!!!!!!!!!!!!!!!!!!!!!!!");
+//		System.out.println("lastbest: "+ lastbest.getDuration()+" "+lastbest);
+//		System.err.println("best: "+best.getDuration()+" "+best);
 			Route route= new Route();
 			try {
 				route.WayFromTo(best);
@@ -1090,7 +1088,7 @@ System.err.println("lastlocation: "+lastLocation);
 				nomoreInters=true;
 			}
 			
-			if(Intersections.get(1).getType()=="Intersection"){
+			if(includeIvalue){
 				
 				try {
 					D_Matrix.updateAllMatrix(Intersections.get(1));
@@ -1124,8 +1122,10 @@ System.err.println("lastlocation: "+lastLocation);
 			lastLocation=e.location;
 			lastbest= new Tour(best);
 		}
-		//Allocate the nodes we are in between through spanning a rectangle with coordinates and 
-		//analyze if we are located in this rectangle
+		// CASE 2: best solution of actual GPS Events fits the best solution of the last event
+		// No new route necessary
+		//Update first element of all tours with GPS Position
+		//Check if Matrix updates has becomes necessary and excecute a request in case of positive feedback
 		else {
 			for( int i=0; i<Nodes.size()-1;i++) {	
 				double maxLat=0;
@@ -1153,11 +1153,11 @@ System.err.println("lastlocation: "+lastLocation);
 						
 							InterinInter=aa;
 							InterinNode=a;
-							includeIvalue=true;
+							includeIvalue=true; //Include an intersection value
 							City inter2=Intersections.get(InterinInter);
 							if(inter2.id!=intermediate.id) {
 							intermediate=Intersections.get(InterinInter);
-							doupdate=true;
+							doupdate=true; //Update matrix with values of new next intersection
 							}
 							abcd=false;
 							break;
@@ -1209,7 +1209,7 @@ System.err.println("lastlocation: "+lastLocation);
 				}
 			} 
 			All_Cities.addCity(e.location);		
-		System.out.println("GPS n Node :"+ GPSinNode);
+			System.out.println("GPS n Node :"+ GPSinNode);
 			 //Calculate duration to next Node (position in ArrayList=GPSinNode+1)
 			double latratio= (Nodes.get(GPSinNode+1).getLatitude()-e.getLatitude())/(Nodes.get(GPSinNode+1).getLatitude()-Nodes.get(GPSinNode).getLatitude());
 			double lonratio=(Nodes.get(GPSinNode+1).getLongitude()-e.getLongitude())/(Nodes.get(GPSinNode+1).getLongitude()-Nodes.get(GPSinNode).getLongitude());
@@ -1234,13 +1234,13 @@ System.err.println("lastlocation: "+lastLocation);
 			lastLocation=e.location;
 			lastbest= new Tour(best);
 			System.out.println("Best duration: "+best.getDuration()+" Best: "+best.toString());
-			System.out.println("Intermediate: "+ intermediate);
-			System.out.println("InterinNode: "+InterinNode);
-			System.out.println("InterinInter: "+InterinInter);
-			System.out.println("No more inters: "+ nomoreInters);
-			for(int b=0;b<pop.populationSize();b++) {
-				System.out.println(pop.getTour(b).getDuration()+" "+ pop.getTour(b));
-			}
+//			System.out.println("Intermediate: "+ intermediate);
+//			System.out.println("InterinNode: "+InterinNode);
+//			System.out.println("InterinInter: "+InterinInter);
+//			System.out.println("No more inters: "+ nomoreInters);
+//			for(int b=0;b<pop.populationSize();b++) {
+//				System.out.println(pop.getTour(b).getDuration()+" "+ pop.getTour(b));
+//			}
 			System.out.println();
 		}
 	}

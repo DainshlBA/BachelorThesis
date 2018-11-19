@@ -18,6 +18,7 @@ public class Run {
 	static boolean runs=false;
 	static Tour lastbest;
 	static Tour best;
+	//Variables for row titles of csv files
 	static String mutation;
 	static String crossover;
 	static String cRate;
@@ -35,7 +36,7 @@ public class Run {
 	
 	
 	 ArrayList<String[]> CSVdata= new ArrayList<String[]>();
-static TimeElement start;
+	 static TimeElement start;
 
 	//Method for setting headers of .csv files
 	public static void getParamter() {
@@ -216,7 +217,7 @@ static TimeElement start;
 			System.out.println(EA.pop.getTour(a).getDuration()+" "+EA.pop.getTour(a));
 		}
 		
-		/*
+		
 		
       //Start dynamic simulation
  	  Optimierer.start();
@@ -273,7 +274,7 @@ static TimeElement start;
 	      csvWriter3.writeNext(SE);;
 	   	
 	   		//csvWriter3.close();
-	  */
+	  
    }    
 }
 
