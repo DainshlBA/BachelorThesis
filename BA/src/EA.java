@@ -1272,9 +1272,11 @@ public class EA implements myListener {
 				hour=0;
 			}
 			
-			//Loop from start to the end of durations[] and add all values to toDrivetoCity with correct time factor, If hour is overlapsed, calculate ratio of time in each hour and assign the to the values
-			//add 1 hour (Maths.intervall Millis) to nextStep, incrase hour, check if hour matches special cases
+			//Loop from start to the end of durations[] and add all values to toDrivetoCity with correct time factor, If interval is overlapsed, calculate ratio of time in each time intervall and assign the to the values
+			//Each interval is defined by hour and step within this hour
+    		//add 1 interval length (Maths.intervall Millis) to nextStep, increase step and eventually hour, check if hour matches special cases
 	    	for(int a=start; a<end;a++) {
+	    		//check if addition of next value causes an overlaps of interval
 	    		if(sumDurTF+durations.get(a)*1000*Maths.getFaktor(hour,step)>nextStep) {
 	    			long ttnh=nextStep-sumDurTF;
 	    			toDrivetoCity+=Maths.round(ttnh/1000,3);
@@ -1291,6 +1293,8 @@ public class EA implements myListener {
 						hour=0;
 					}
 	    			boolean finish=false;
+	    			//y: calculate duration that still has to be traveled in the next interval(s)
+	    			//do this while the left duration fits in one interval
 	    			do {
 	    				
 	    				long y=(long)(durations.get(a)*1000)-x;
@@ -1318,7 +1322,7 @@ public class EA implements myListener {
 	    			while(finish==false);   			
 				
 				}
-	    		//add full duration hour depending value
+	    		//values fully fits in actual intervall
 	    		else {
 	    			
 	    			toDrivetoCity+=durations.get(a)*Maths.getFaktor(hour,step);
@@ -1328,7 +1332,7 @@ public class EA implements myListener {
 
 	    	}
 	    	toDrivetoCity= Maths.round(toDrivetoCity, 2);
-	    	System.out.println("TDTC "+toDrivetoCity);
+//	    	System.out.println("TDTC "+toDrivetoCity);
     	}
 	
     	//Analog procedure
@@ -1408,7 +1412,7 @@ public class EA implements myListener {
 
 	    	}
 	    	toDrivetoIntersection= Maths.round(toDrivetoIntersection, 2);
-	    	System.out.println("TDTI: "+ toDrivetoIntersection);
+//	    	System.out.println("TDTI: "+ toDrivetoIntersection);
     	}
     	//Analog procedure
 
